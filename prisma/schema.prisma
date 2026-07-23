@@ -1,0 +1,611 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id                               String                    @id @default(cuid())
+  /// UUID from Supabase auth.users — used to link the two systems
+  authId                           String                    @unique
+  fullName                         String                    @db.VarChar(100)
+  phone                            String                    @unique @db.VarChar(20)
+  location                         String                    @db.VarChar(100)
+  role                             Role
+  marketerSubRole                  MarketerSubRole?
+  /// Hashed push notification device token
+  pushToken                        String?
+  failedLoginAttempts              Int                       @default(0)
+  lockedUntil                      DateTime?
+  createdAt                        DateTime                  @default(now())
+  updatedAt                        DateTime                  @updatedAt
+  clientAppointments               Appointment[]             @relation("ClientAppointments")
+  collaborationInvitationsReceived CollaborationInvitation[] @relation("InvitationReceiver")
+  collaborationInvitationsSent     CollaborationInvitation[] @relation("InvitationSender")
+  collaborationsCreated            CollaborationProject[]    @relation("ProjectCreator")
+  clientConversations              Conversation[]            @relation("ClientConversations")
+  designerProfile                  DesignerProfile?
+  deviceTokens                     DeviceToken[]
+  marketerProfile                  MarketerProfile?
+  sentMessages                     Message[]                 @relation("SentMessages")
+  notifications                    Notification[]
+  orders                           Order[]
+  plannerEvents                    PlannerEvent[]
+  reviews                          Review[]                  @relation("ClientReviews")
+  trainingApplications             TrainingApplication[]     @relation("ClientApplications")
+  vendorProfile                    VendorProfile?
+  workspaceFiles                   WorkspaceFile[]
+  workspaceNotes                   WorkspaceNote[]
+  workspaceUpdates                 WorkspaceUpdate[]
+
+  @@map("users")
+}
+
+model DesignerProfile {
+  id                       String             @id @default(cuid())
+  userId                   String             @unique
+  availability             AvailabilityStatus @default(Available)
+  /// Arithmetic mean of all Review.score values — updated on every new review
+  rankingScore             Float              @default(0.0)
+  reviewCount              Int                @default(0)
+  completedFitsCount       Int                @default(0)
+  pendingAppointmentsCount Int                @default(0)
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @updatedAt
+  appointments             Appointment[]      @relation("DesignerAppointments")
+  bookingsMade             Booking[]          @relation("DesignerBookings")
+  designerConversations    Conversation[]     @relation("DesignerConversations")
+  user                     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plannerEvents            PlannerEvent[]     @relation("DesignerPlannerEvents")
+  portfolioImages          PortfolioImage[]
+  reviews                  Review[]           @relation("DesignerReviews")
+  trainingPrograms         TrainingProgram[]
+
+  @@map("designer_profiles")
+}
+
+model PortfolioImage {
+  id                String          @id @default(cuid())
+  designerProfileId String
+  /// Supabase Storage public URL
+  url               String
+  /// Storage bucket path for deletion
+  storagePath       String
+  mimeType          String          @db.VarChar(50)
+  sizeBytes         Int
+  createdAt         DateTime        @default(now())
+  designerProfile   DesignerProfile @relation(fields: [designerProfileId], references: [id], onDelete: Cascade)
+
+  @@map("portfolio_images")
+}
+
+model Review {
+  id                String          @id @default(cuid())
+  designerProfileId String
+  clientId          String
+  /// Integer 1–5
+  score             Int
+  comment           String?
+  createdAt         DateTime        @default(now())
+  client            User            @relation("ClientReviews", fields: [clientId], references: [id], onDelete: Cascade)
+  designerProfile   DesignerProfile @relation("DesignerReviews", fields: [designerProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([designerProfileId, clientId])
+  @@map("reviews")
+}
+
+model VendorProfile {
+  id        String    @id @default(cuid())
+  userId    String    @unique
+  storeName String    @db.VarChar(150)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  listings  Listing[]
+  orders    Order[]   @relation("VendorOrders")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("vendor_profiles")
+}
+
+model Listing {
+  id              String          @id @default(cuid())
+  vendorProfileId String
+  name            String          @db.VarChar(100)
+  category        ListingCategory
+  description     String          @db.VarChar(1000)
+  /// Price in XAF — stored as integer (kobo-equivalent) for precision
+  priceXAF        Int
+  inStock         Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  images          ListingImage[]
+  vendorProfile   VendorProfile   @relation(fields: [vendorProfileId], references: [id], onDelete: Cascade)
+  orderItems      OrderItem[]
+
+  @@map("listings")
+}
+
+model ListingImage {
+  id          String   @id @default(cuid())
+  listingId   String
+  url         String
+  storagePath String
+  sizeBytes   Int
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@map("listing_images")
+}
+
+model MarketerProfile {
+  id             String             @id @default(cuid())
+  userId         String             @unique
+  subRole        MarketerSubRole
+  bookingStatus  AvailabilityStatus @default(Available)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  bookings       Booking[]          @relation("MarketerBookings")
+  portfolioFiles MarketerFile[]
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("marketer_profiles")
+}
+
+model MarketerFile {
+  id                String          @id @default(cuid())
+  marketerProfileId String
+  url               String
+  storagePath       String
+  fileType          FileType
+  mimeType          String          @db.VarChar(100)
+  sizeBytes         Int
+  /// Duration in seconds — video only
+  durationSeconds   Int?
+  createdAt         DateTime        @default(now())
+  marketerProfile   MarketerProfile @relation(fields: [marketerProfileId], references: [id], onDelete: Cascade)
+
+  @@map("marketer_files")
+}
+
+model Appointment {
+  id                String            @id @default(cuid())
+  clientId          String
+  designerProfileId String
+  status            AppointmentStatus @default(Pending)
+  notes             String?
+  requestedAt       DateTime          @default(now())
+  attendedAt        DateTime?
+  deliveredAt       DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  client            User              @relation("ClientAppointments", fields: [clientId], references: [id], onDelete: Cascade)
+  designerProfile   DesignerProfile   @relation("DesignerAppointments", fields: [designerProfileId], references: [id], onDelete: Cascade)
+
+  @@map("appointments")
+}
+
+model Booking {
+  id                   String          @id @default(cuid())
+  designerProfileId    String
+  marketerProfileId    String
+  /// Designer's display name snapshot (denormalised for notifications)
+  designerName         String          @db.VarChar(100)
+  description          String          @db.VarChar(500)
+  proposedStartDate    DateTime
+  proposedEndDate      DateTime
+  status               BookingStatus   @default(Pending)
+  /// Number of push notification delivery attempts (max 4: 1 + 3 retries)
+  notificationAttempts Int             @default(0)
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  designerProfile      DesignerProfile @relation("DesignerBookings", fields: [designerProfileId], references: [id], onDelete: Cascade)
+  marketerProfile      MarketerProfile @relation("MarketerBookings", fields: [marketerProfileId], references: [id], onDelete: Cascade)
+
+  @@map("bookings")
+}
+
+model Order {
+  id              String         @id @default(cuid())
+  clientId        String
+  vendorProfileId String
+  /// Amounts in XAF (integer)
+  subtotalXAF     Int
+  deliveryFeeXAF  Int            @default(0)
+  totalXAF        Int
+  status          OrderStatus    @default(Pending)
+  paymentStatus   PaymentStatus  @default(Pending)
+  deliveryStatus  DeliveryStatus @default(Pending)
+  /// Delivery tracking reference assigned after payment confirmed
+  deliveryRef     String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  items           OrderItem[]
+  client          User           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  vendorProfile   VendorProfile  @relation("VendorOrders", fields: [vendorProfileId], references: [id], onDelete: Cascade)
+  transactions    Transaction[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id           String  @id @default(cuid())
+  orderId      String
+  listingId    String
+  /// Snapshot of listing name at time of order (listing may change later)
+  name         String  @db.VarChar(100)
+  quantity     Int
+  /// Unit price in XAF at time of order
+  unitPriceXAF Int
+  listing      Listing @relation(fields: [listingId], references: [id])
+  order        Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_items")
+}
+
+model Transaction {
+  id                String          @id @default(cuid())
+  orderId           String
+  provider          PaymentProvider
+  /// Reference returned by the payment provider on success
+  providerReference String?
+  amountXAF         Int
+  status            PaymentStatus   @default(Pending)
+  /// Raw failure reason from provider
+  failureReason     String?
+  /// Timestamp when provider confirmed the transaction
+  confirmedAt       DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  order             Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("transactions")
+}
+
+model Conversation {
+  id                String          @id @default(cuid())
+  clientId          String
+  designerProfileId String
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  client            User            @relation("ClientConversations", fields: [clientId], references: [id], onDelete: Cascade)
+  designerProfile   DesignerProfile @relation("DesignerConversations", fields: [designerProfileId], references: [id], onDelete: Cascade)
+  messages          Message[]
+
+  @@unique([clientId, designerProfileId])
+  @@map("conversations")
+}
+
+model Message {
+  id             String                @id @default(cuid())
+  conversationId String
+  senderId       String
+  type           MessageType           @default(text)
+  /// text: message body (max 2000 chars) | image: Supabase Storage URL
+  content        String
+  deliveryStatus MessageDeliveryStatus @default(Sending)
+  /// Number of delivery retry attempts (max 3)
+  retryCount     Int                   @default(0)
+  sentAt         DateTime              @default(now())
+  deliveredAt    DateTime?
+  readAt         DateTime?
+  conversation   Conversation          @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User                  @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+model Notification {
+  id          String              @id @default(cuid())
+  recipientId String
+  type        NotificationType
+  title       String              @db.VarChar(200)
+  body        String
+  /// JSON payload for deep-link navigation
+  data        Json                @default("{}")
+  channel     NotificationChannel @default(both)
+  read        Boolean             @default(false)
+  deliveredAt DateTime?
+  readAt      DateTime?
+  createdAt   DateTime            @default(now())
+  recipient   User                @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model DeviceToken {
+  id        String   @id @default(cuid())
+  userId    String
+  /// FCM (Android) or APNs (iOS) device token
+  token     String   @unique
+  /// "fcm" | "apns"
+  platform  String   @db.VarChar(10)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("device_tokens")
+}
+
+model TrainingProgram {
+  id                String                @id @default(cuid())
+  designerProfileId String
+  title             String                @db.VarChar(150)
+  description       String                @db.VarChar(2000)
+  durationCategory  TrainingDuration
+  startDate         DateTime
+  maxCapacity       Int
+  enrolledCount     Int                   @default(0)
+  /// Price in XAF
+  priceXAF          Int
+  timetable         String                @db.VarChar(5000)
+  status            TrainingStatus        @default(Draft)
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  applications      TrainingApplication[]
+  designerProfile   DesignerProfile       @relation(fields: [designerProfileId], references: [id], onDelete: Cascade)
+
+  @@map("training_programs")
+}
+
+model TrainingApplication {
+  id               String            @id @default(cuid())
+  programId        String
+  clientId         String
+  status           ApplicationStatus @default(Pending)
+  /// Payment provider reference — required before application is created
+  paymentReference String
+  appliedAt        DateTime          @default(now())
+  respondedAt      DateTime?
+  client           User              @relation("ClientApplications", fields: [clientId], references: [id], onDelete: Cascade)
+  program          TrainingProgram   @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@unique([programId, clientId])
+  @@map("training_applications")
+}
+
+model PlannerEvent {
+  id                String          @id @default(cuid())
+  userId            String
+  designerProfileId String
+  title             String          @db.VarChar(200)
+  eventDate         DateTime        @db.Date
+  /// Optional day note (1–1000 chars)
+  note              String?         @db.VarChar(1000)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  designerProfile   DesignerProfile @relation("DesignerPlannerEvents", fields: [designerProfileId], references: [id], onDelete: Cascade)
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("planner_events")
+}
+
+model CollaborationProject {
+  id                String                    @id @default(cuid())
+  creatorId         String
+  title             String                    @db.VarChar(150)
+  description       String                    @db.VarChar(2000)
+  requiredSkills    String                    @db.VarChar(500)
+  deadline          DateTime
+  collaboratorSlots Int
+  status            CollaborationStatus       @default(Active)
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+  invitations       CollaborationInvitation[]
+  creator           User                      @relation("ProjectCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  workspaceFiles    WorkspaceFile[]
+  workspaceNotes    WorkspaceNote[]
+  workspaceUpdates  WorkspaceUpdate[]
+
+  @@map("collaboration_projects")
+}
+
+model CollaborationInvitation {
+  id          String               @id @default(cuid())
+  projectId   String
+  inviterId   String
+  inviteeId   String
+  status      InvitationStatus     @default(Pending)
+  sentAt      DateTime             @default(now())
+  respondedAt DateTime?
+  invitee     User                 @relation("InvitationReceiver", fields: [inviteeId], references: [id], onDelete: Cascade)
+  inviter     User                 @relation("InvitationSender", fields: [inviterId], references: [id], onDelete: Cascade)
+  project     CollaborationProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, inviteeId])
+  @@map("collaboration_invitations")
+}
+
+model WorkspaceNote {
+  id        String               @id @default(cuid())
+  projectId String
+  authorId  String
+  /// 1–2000 chars
+  content   String               @db.VarChar(2000)
+  createdAt DateTime             @default(now())
+  author    User                 @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  project   CollaborationProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("workspace_notes")
+}
+
+model WorkspaceFile {
+  id          String               @id @default(cuid())
+  projectId   String
+  uploaderId  String
+  url         String
+  storagePath String
+  mimeType    String               @db.VarChar(100)
+  sizeBytes   Int
+  createdAt   DateTime             @default(now())
+  project     CollaborationProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploader    User                 @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+
+  @@map("workspace_files")
+}
+
+model WorkspaceUpdate {
+  id        String               @id @default(cuid())
+  projectId String
+  authorId  String
+  /// 1–1000 chars
+  content   String               @db.VarChar(1000)
+  createdAt DateTime             @default(now())
+  author    User                 @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  project   CollaborationProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("workspace_updates")
+}
+
+model FeedItem {
+  id            String   @id @default(cuid())
+  imageUrl      String
+  storagePath   String
+  /// JSON array of style tag strings e.g. ["Toghu", "Traditional", "Wedding"]
+  tags          Json     @default("[]")
+  /// "traditional" | "contemporary" | "hairstyle" | "accessories"
+  category      String   @db.VarChar(50)
+  /// true = traditional Cameroonian; false = contemporary/modern
+  isTraditional Boolean  @default(false)
+  /// Supabase region tag for location-based discovery
+  region        String?  @db.VarChar(100)
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  @@map("feed_items")
+}
+
+enum Role {
+  Client
+  Designer
+  Vendor
+  Marketer
+}
+
+enum MarketerSubRole {
+  Model
+  Content_Creator
+}
+
+enum AvailabilityStatus {
+  Available
+  Busy
+  Unavailable
+}
+
+enum AppointmentStatus {
+  Pending
+  Attended
+  Unattended
+  Delivered
+}
+
+enum BookingStatus {
+  Pending
+  Confirmed
+  Declined
+  Failed
+}
+
+enum OrderStatus {
+  Pending
+  Confirmed
+  Cancelled
+}
+
+enum PaymentStatus {
+  Pending
+  Paid
+  Failed
+  Refunded
+}
+
+enum PaymentProvider {
+  mtn_momo
+  orange_money
+}
+
+enum DeliveryStatus {
+  Pending
+  InTransit
+  Delivered
+}
+
+enum MessageType {
+  text
+  image
+}
+
+enum MessageDeliveryStatus {
+  Sending
+  Delivered
+  Read
+  Failed
+}
+
+enum NotificationType {
+  appointment_request
+  appointment_status_update
+  order_placed
+  order_status_update
+  booking_request
+  booking_response
+  new_message
+  training_application
+  training_application_response
+  training_timetable_update
+  collaboration_invitation
+  collaboration_response
+  workspace_update
+}
+
+enum NotificationChannel {
+  push
+  in_app
+  both
+}
+
+enum TrainingDuration {
+  short_term
+  long_term
+}
+
+enum TrainingStatus {
+  Draft
+  Published
+  Completed
+}
+
+enum ApplicationStatus {
+  Pending
+  Accepted
+  Rejected
+}
+
+enum CollaborationStatus {
+  Active
+  Completed
+}
+
+enum InvitationStatus {
+  Pending
+  Accepted
+  Declined
+}
+
+enum ListingCategory {
+  clothes
+  accessories
+  shoes
+  hairstyle_products_services
+}
+
+enum FileType {
+  image
+  video
+  document
+}
