@@ -1,0 +1,60 @@
+version: "3.9"
+
+# ─────────────────────────────────────────────────────────────────────────
+# NdoloStitch ML Service — local development orchestration
+#
+# Usage:
+#   docker compose up --build          # start the service
+#   docker compose up -d               # start in background
+#   docker compose logs -f ml-service  # follow logs
+#   docker compose down                # stop and remove containers
+#
+# The model-cache volume persists the downloaded CLIP model between
+# container restarts so you don't re-download on every `docker compose up`.
+# ─────────────────────────────────────────────────────────────────────────
+
+services:
+  ml-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: ndolostitch-ml-service:latest
+    container_name: ndolostitch-ml
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      # Override MODEL_CACHE_DIR to point at the mounted volume
+      MODEL_CACHE_DIR: /model-cache
+      TRANSFORMERS_CACHE: /model-cache
+      HF_HOME: /model-cache
+    volumes:
+      # Persist model weights between restarts
+      - model-cache:/model-cache
+      # Mount source code for hot-reload during development
+      # Comment this out for a production-like test
+      - ./app:/app/app
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
+        ]
+      interval: 30s
+      timeout: 10s
+      start_period: 90s   # give model load time
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  model-cache:
+    driver: local

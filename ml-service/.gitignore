@@ -1,0 +1,25 @@
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Model cache (too large for git)
+/model-cache/
+
+# Seed images (add to git-lfs or Supabase Storage instead)
+seed_data/images/*/
+!seed_data/images/*/.gitkeep
+
+# Generated CSV is fine to commit once populated
+# seed_data/metadata.csv
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
