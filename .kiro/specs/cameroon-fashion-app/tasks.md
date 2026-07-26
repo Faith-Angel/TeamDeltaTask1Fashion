@@ -436,6 +436,123 @@ Implementation proceeds in waves: project foundation → backend modules → Rea
     - Visual layout render tests at 320pt and 428pt for all dashboard and key screens
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 12.1, 12.2_
 
+- [ ] 24. Backend — Training Programs module
+  - [ ] 24.1 Implement TrainingModule (NestJS): TrainingController, TrainingService, TypeORM entities TrainingProgramEntity, TrainingApplicationEntity
+    - `POST /designers/:id/training-programs`: validate all fields (title 1–150, description 1–2000, durationCategory enum, startDate >= today, maxCapacity 1–500, price 1–10,000,000 XAF, timetable 1–5000 chars); save with status "Draft"; return 400 with inline errors on violation
+    - `PATCH /training-programs/:id`: update fields; when status transitions to "Published", trigger Redis cache invalidation; reflects on Designer_Profile within 60s
+    - `POST /training-programs/:id/apply`: call Payment_Gateway first; on confirmed payment create TrainingApplication with status "Pending"; on payment failure return error, create no record; notify Designer within 30s via Notification_Service
+    - `PATCH /training-applications/:id/respond`: accept → check enrolledCount < maxCapacity (return 409 if full), set status "Accepted", increment enrolledCount, notify Client; reject → set status "Rejected", notify Client
+    - `GET /training-programs/:id/applications`: list all applications with applicant name, status, paymentReference
+    - `GET /training-programs?durationCategory=&location=&cursor=`: cursor-paginated, filtered, returns published programs only
+    - `GET /training-programs/:id`: program detail
+    - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5, 14.6, 14.7, 14.8, 14.9, 14.10, 14.11, 14.12, 14.13, 14.14_
+
+  - [ ]* 24.2 Write property test for Training Program field validation (Property 33)
+    - **Property 33: Training Program field validation — valid inputs accepted, invalid inputs rejected**
+    - For any combination of training program fields, accept iff all constraints satisfied; reject with inline error per offending field otherwise
+    - **Validates: Requirements 14.1, 14.2**
+    - Tag: `// Feature: cameroon-fashion-app, Property 33: Training Program field validation`
+
+  - [ ]* 24.3 Write property test for enrollment capacity enforcement (Property 34)
+    - **Property 34: Training enrollment capacity enforcement — accept application attempt iff enrolledCount < maxCapacity; reject with error if slots exhausted**
+    - **Validates: Requirements 14.9, 14.12**
+    - Tag: `// Feature: cameroon-fashion-app, Property 34: Training enrollment capacity`
+
+  - [ ]* 24.4 Write property test for training application payment gate (Property 35)
+    - **Property 35: Training application payment gate — TrainingApplication record created iff Payment_Gateway returns confirmed success; any other outcome (failure, timeout) creates zero records**
+    - **Validates: Requirements 14.6, 14.7, 14.8**
+    - Tag: `// Feature: cameroon-fashion-app, Property 35: Training application payment gate`
+
+  - [ ]* 24.5 Write integration test for training application end-to-end flow
+    - Client applies → payment confirmed (mocked) → TrainingApplication created (status Pending) → Designer notified within 30s → Designer accepts → Client notified, enrolledCount incremented by 1
+    - Test capacity guard: fill all slots, attempt one more accept → verify 409 returned, enrolledCount unchanged
+    - Test timetable update notification: update timetable → verify all accepted applicants notified within 30s (mocked push)
+
+- [ ] 25. Backend — Designer Planner module
+  - [ ] 25.1 Implement PlannerModule (NestJS): PlannerController, PlannerService, TypeORM entity PlannerEventEntity
+    - `GET /designers/:id/planner?from=&days=30`: aggregate planner events from 3 sources — (1) training sessions derived from published TrainingProgram timetables for programs owned by the designer, (2) Appointment records with status Pending or Attended, and (3) Appointment records in Attended status not yet Delivered (delivery deadlines); also include custom PlannerEvents; return consolidated day-keyed structure within 3s
+    - Conflict detection: for each day in the response, set conflictIndicator=true iff the day contains ≥1 training session AND (≥1 Pending/Attended appointment OR ≥1 outstanding delivery deadline)
+    - `POST /designers/:id/planner/events`: create custom event; validate title 1–200 chars, date present; return 400 with inline error on violation; persist and reflect within 5s
+    - `PATCH /designers/:id/planner/events/:eventId`: update title or date of custom event
+    - `DELETE /designers/:id/planner/events/:eventId`: delete custom event
+    - `POST /designers/:id/planner/notes`: upsert day note for given date; validate content 1–1000 chars; persist within 5s
+    - _Requirements: 15.1, 15.2, 15.3, 15.4, 15.5, 15.6, 15.7, 15.8_
+
+  - [ ]* 25.2 Write property test for planner conflict indicator correctness (Property 36)
+    - **Property 36: Planner conflict indicator correctness — conflict indicator shown iff training session AND (appointment or delivery) on same day; training-only or appointment-only days show no indicator**
+    - **Validates: Requirements 15.3**
+    - Tag: `// Feature: cameroon-fashion-app, Property 36: Planner conflict indicator`
+
+  - [ ]* 25.3 Write integration test for planner render
+    - Seed designer with published training programs, pending appointments, and attended-but-undelivered appointments; call `GET /designers/:id/planner?from=today&days=30`; verify all 3 event types appear; verify conflict indicator appears only on days with both training and appointment events; verify response time ≤3s
+
+- [ ] 26. Backend — Collaboration module
+  - [ ] 26.1 Implement CollaborationModule (NestJS): CollaborationController, CollaborationService, TypeORM entities: CollaborationProjectEntity, CollaborationInvitationEntity, WorkspaceNoteEntity, WorkspaceFileEntity, WorkspaceUpdateEntity
+    - `POST /designers/:id/collaborations`: validate title 1–150, description 1–2000, requiredSkills 1–500, deadline >= today, collaboratorSlots 1–20; save project; reflect on Designer_Profile within 60s (portfolio item)
+    - `POST /collaborations/:id/invite`: check participants.length < collaboratorSlots (return 409 if full); create CollaborationInvitation with status Pending; notify invitee within 30s (include inviting designer name, project title, required skills)
+    - `PATCH /collaboration-invitations/:id/respond`: accept → add invitee to participants array, decrement collaboratorSlots, set status Accepted, notify inviter within 30s; decline → set status Declined, notify inviter within 30s
+    - Workspace endpoints: `GET/POST /collaborations/:id/workspace/notes`; `GET/POST /collaborations/:id/workspace/files` (pre-signed S3 URL, validate MIME jpeg/png/webp/pdf ≤10MB, max 50 files per project); `GET/POST /collaborations/:id/workspace/updates`; on POST to any workspace endpoint, notify all OTHER participants within 30s
+    - `GET /designers/:id/collaborations`: list all projects the designer created or participates in
+    - `GET /collaborations/:id`: project detail with participants, deadline, status
+    - Deadline auto-complete: BullMQ scheduled job checks daily; projects where deadline < now and status = Active → set status = Completed; retain on all participant profiles
+    - _Requirements: 16.1, 16.2, 16.3, 16.4, 16.5, 16.6, 16.7, 16.8, 16.9, 16.10, 16.11_
+
+  - [ ]* 26.2 Write property test for Collaboration Project field validation (Property 37)
+    - **Property 37: Collaboration Project field validation — valid inputs accepted, invalid inputs rejected**
+    - For any combination of collaboration project fields, accept iff all constraints satisfied; reject with inline error per offending field otherwise
+    - **Validates: Requirements 16.1, 16.2**
+    - Tag: `// Feature: cameroon-fashion-app, Property 37: Collaboration Project field validation`
+
+  - [ ]* 26.3 Write property test for slot exhaustion blocks invitations (Property 38)
+    - **Property 38: Collaboration slot exhaustion blocks invitations — when participants.length == collaboratorSlots, any invitation attempt returns error, creates no CollaborationInvitation, sends no notification**
+    - **Validates: Requirements 16.7**
+    - Tag: `// Feature: cameroon-fashion-app, Property 38: Collaboration slot exhaustion`
+
+  - [ ]* 26.4 Write integration test for collaboration lifecycle
+    - Create project → verify portfolio item on Designer_Profile within 60s
+    - Send invitation → invitee notified within 30s (mocked) → invitee accepts → participant list updated, slots decremented, inviter notified
+    - Full-slots guard: fill all slots, attempt another invitation → verify 409 returned
+    - Workspace post: participant posts note → all OTHER participants notified within 30s (mocked)
+    - Deadline auto-complete: set deadline to past (via test clock) → trigger job → verify status = Completed, project retained on all participant profiles
+
+- [ ] 27. React Native — Training screens (Client-facing)
+  - [ ] 27.1 Implement TrainingDirectory and TrainingProgramDetail screens (Client-facing)
+    - `TrainingDirectory`: FlashList of published training programs; filter bar with duration category toggle (short-term / long-term) and designer location filter; each card shows title, duration category, start date, price in XAF, remaining enrollment slots; tap → TrainingProgramDetail
+    - `TrainingProgramDetail`: full program info (title, description, timetable, start date, max capacity, remaining slots, price); "Apply & Pay" button
+    - "Apply & Pay" flow: PaymentMethodSelector (MTN MoMo / Orange Money) → `POST /training-programs/:id/apply` → on success show confirmation; on failure show error and allow retry; no application record created on failure
+    - `TrainingApplicationStatus` screen: shows current application status (Pending, Accepted, Rejected) and Training_Badge when Accepted
+    - _Requirements: 14.4, 14.5, 14.6, 14.7, 14.8, 14.11_
+
+- [ ] 28. React Native — Training screens (Designer-facing)
+  - [ ] 28.1 Implement TrainingProgramList, TrainingProgramForm, and ApplicationList screens (Designer-facing)
+    - `TrainingProgramList`: list of the designer's training programs; create new button
+    - `TrainingProgramForm`: fields for title (1–150), description (1–2000), durationCategory picker (short-term / long-term), start date picker (≥ today), maxCapacity (1–500), price (1–10,000,000 XAF), timetable (1–5000 chars text area); validate all fields with Zod client-side; inline error per offending field; submit → `POST /designers/:id/training-programs`; edit → `PATCH /training-programs/:id`; on timetable update: notify accepted applicants
+    - `ApplicationList`: list of all applications per program showing applicant name, status, payment reference; "Accept" and "Reject" action buttons; on accept: check remaining slots > 0 (show error if 0); `PATCH /training-applications/:id/respond`
+    - `trainingStore.ts` (Zustand): programs, applications, enrollmentState, fetchPrograms(), fetchApplications(), respondToApplication()
+    - _Requirements: 14.1, 14.2, 14.3, 14.9, 14.10, 14.12, 14.13, 14.14_
+
+- [ ] 29. React Native — Designer Planner screen
+  - [ ] 29.1 Implement PlannerCalendar, DayDetail, and AddEvent screens (Designer-facing)
+    - `PlannerCalendar`: react-native-calendars calendar view; `GET /designers/:id/planner?from=today&days=30` on mount; render within 3s; show conflict indicator (e.g., orange dot) on days with both training and appointment events; show summary dots per event type per day (training = green, appointment = blue, delivery = red, custom = grey)
+    - `DayDetail`: tap a day → show day detail: list of training sessions, appointments (Pending/Attended), delivery deadlines, custom events, and day note; show count summary (training sessions, pending appointments, outstanding deliveries); "Add Note" button → inline text input (1–1000 chars) → `POST /designers/:id/planner/notes`
+    - `AddEvent` screen: title (1–200 chars) + date picker; submit → `POST /designers/:id/planner/events`; reflected in calendar within 5s; validation: inline error if title empty or no date selected
+    - `plannerStore.ts` (Zustand): events, notes, conflictDays, fetchPlanner(), addEvent(), addNote()
+    - _Requirements: 15.1, 15.2, 15.3, 15.4, 15.5, 15.6, 15.7, 15.8_
+
+- [ ] 30. React Native — Collaboration screens (Designer-facing)
+  - [ ] 30.1 Implement CollaborationList, CollaborationDetail, CollaborationWorkspace, and InviteDesigner screens
+    - `CollaborationList`: list of all projects the designer created or participates in, each showing title, participant count, deadline, status (Active / Completed); create new button
+    - `CollaborationDetail`: project info (title, description, required skills, deadline, collaborator slots remaining, participant designer names); "Invite Designer" button (disabled if slots = 0); project status badge
+    - `InviteDesigner` screen: searchable list of Designers (reuses Designer_Directory query); select designer → `POST /collaborations/:id/invite`; show error if slots = 0
+    - `CollaborationWorkspace`: tabbed interface with Notes, Files, and Updates tabs
+      - Notes tab: FlashList of shared notes; "Add Note" input (1–2000 chars) → `POST /collaborations/:id/workspace/notes`
+      - Files tab: list of uploaded files with name and mime type; "Upload File" → expo-document-picker → validate MIME (jpeg/png/webp/pdf) and size ≤10MB client-side → request pre-signed S3 URL → upload; error message on violation; max 50 files guard
+      - Updates tab: list of progress updates; "Post Update" input (1–1000 chars) → `POST /collaborations/:id/workspace/updates`
+      - On any post/upload: notify all other participants via Notification_Service
+    - CollaborationProject displayed on Designer_Profile as portfolio item (title, participant names, deadline, status)
+    - `collaborationStore.ts` (Zustand): projects, invitations, workspaceNotes, workspaceFiles, workspaceUpdates
+    - _Requirements: 16.1, 16.2, 16.3, 16.4, 16.5, 16.6, 16.7, 16.8, 16.9, 16.10, 16.11_
+
 - [ ] 21. Checkpoint — Full integration and end-to-end wiring
   - Ensure all frontend screens connect to the backend API correctly. Verify the complete order flow (add to cart → checkout → payment → order created → vendor notified), the full chat lifecycle (send → deliver → read receipt), the booking flow (submit → notification retry → accept/decline), and the guest→auth transition with scroll restore. Ensure all tests pass, ask the user if questions arise.
 
@@ -490,9 +607,9 @@ Implementation proceeds in waves: project foundation → backend modules → Rea
     { "id": 4, "tasks": ["2.5", "3.2", "3.3", "4.2", "4.3", "5.2", "5.3", "6.2", "6.3", "7.2", "7.3", "8.2", "9.2", "9.3", "9.4"] },
     { "id": 5, "tasks": ["3.4", "3.5", "3.6", "3.7", "6.4", "6.5", "7.4", "7.5", "8.3", "8.4", "11.1"] },
     { "id": 6, "tasks": ["11.2", "12.1", "12.2", "13.1", "13.2", "13.3"] },
-    { "id": 7, "tasks": ["14.1", "14.2", "15.1", "16.1", "17.1", "18.1", "19.1"] },
-    { "id": 8, "tasks": ["14.3", "14.4", "15.2", "15.3", "16.2", "16.3", "17.2", "18.2"] },
-    { "id": 9, "tasks": ["20.1", "20.2"] },
+    { "id": 7, "tasks": ["14.1", "14.2", "15.1", "16.1", "17.1", "18.1", "19.1", "24.1", "25.1", "26.1"] },
+    { "id": 8, "tasks": ["14.3", "14.4", "15.2", "15.3", "16.2", "16.3", "17.2", "18.2", "24.2", "24.3", "24.4", "24.5", "25.2", "25.3", "26.2", "26.3", "26.4"] },
+    { "id": 9, "tasks": ["20.1", "20.2", "27.1", "28.1", "29.1", "30.1"] },
     { "id": 10, "tasks": ["22.1", "22.2", "22.3", "22.4"] }
   ]
 }
