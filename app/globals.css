@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
+    --background: #FAFAF5;
+    --foreground: #1B1B1B;
+    --card: #FFFFFF;
+    --card-foreground: #1B1B1B;
+    --popover: #FFFFFF;
+    --popover-foreground: #1B1B1B;
+    --primary: #558B2F;
+    --primary-foreground: #FFFFFF;
+    --secondary: #F1F8E9;
+    --secondary-foreground: #1B1B1B;
+    --muted: #F1F8E9;
+    --muted-foreground: #5D4037;
+    --accent: #F9A825;
+    --accent-foreground: #1B1B1B;
+    --destructive: #C62828;
+    --destructive-foreground: #FFFFFF;
+    --border: #E8F5E9;
+    --input: #E8F5E9;
+    --ring: #558B2F;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-textPrimary;
+  }
+
+  /* Minimum touch target size */
+  button, a, [role="button"] {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  input, textarea, select {
+    @apply min-h-[44px];
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}

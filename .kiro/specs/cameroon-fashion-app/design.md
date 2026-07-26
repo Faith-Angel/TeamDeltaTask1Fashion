@@ -1,8 +1,8 @@
-# Design Document: Cameroon Fashion App
+# Design Document: NdoloStitch
 
 ## Overview
 
-The Cameroon Fashion App is a Next.js 15 Progressive Web App (PWA) connecting four distinct roles — Clients, Designers, Vendors, and Marketers — within Cameroon's fashion ecosystem. It enables fashion discovery, designer collaboration, marketplace commerce, marketer bookings, and real-time messaging. The platform integrates local payment solutions (MTN Mobile Money and Orange Money), an AI-powered outfit generator, and a culturally resonant Afrocentric UI (Savanna Bloom palette).
+NdoloStitch is a Next.js 15 Progressive Web App (PWA) connecting four distinct roles — Clients, Designers, Vendors, and Marketers — within Cameroon's fashion ecosystem. It enables fashion discovery, designer collaboration, marketplace commerce, marketer bookings, and real-time messaging. The platform integrates local payment solutions (MTN Mobile Money and Orange Money), an AI-powered outfit generator, and a culturally resonant Afrocentric UI (Savanna Bloom palette).
 
 Key design goals:
 - Next.js 15 App Router with TypeScript, deployable as a PWA installable on any device
