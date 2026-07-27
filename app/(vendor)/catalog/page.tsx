@@ -26,12 +26,12 @@ function ListingFormModal({
   const isEdit = !!existing;
 
   const { mutate: create, isPending: creating, isSuccess: created } = useMutation({
-    mutationFn: (data: ListingInput) => vendorApi.createListing(data),
+    mutationFn: (data: ListingInput) => vendorApi.createListing(data).then((r) => r.data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MARKETPLACE, 'vendor'] }),
   });
 
   const { mutate: update, isPending: updating, isSuccess: updated } = useMutation({
-    mutationFn: (data: ListingInput) => vendorApi.updateListing(existing!.id, data),
+    mutationFn: (data: ListingInput) => vendorApi.updateListing(existing!.id, data).then((r) => r.data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MARKETPLACE, 'vendor'] }),
   });
 

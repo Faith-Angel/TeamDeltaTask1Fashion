@@ -43,7 +43,7 @@ export default function MarketerBookingsPage() {
 
   const { mutate: respond, isPending: responding } = useMutation({
     mutationFn: ({ id, status }: { id: string; status: 'Confirmed' | 'Declined' }) =>
-      marketersApi.respondToBooking(id, status),
+      marketersApi.respondToBooking(id, status).then((r) => r.data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['bookings', 'marketer'] }),
   });
 

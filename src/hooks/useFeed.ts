@@ -1,6 +1,6 @@
 'use client';
 
-import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery, useMutation } from '@tanstack/react-query';
 import { feedApi } from '@/services/apiClient';
 import { QUERY_KEYS } from '@/lib/constants';
 import type { FeedItem, PaginatedResponse } from '@/types/models';
@@ -15,7 +15,6 @@ export function useFeed() {
 }
 
 export function useFeedItem(id: string) {
-  const { useQuery } = require('@tanstack/react-query');
   return useQuery<FeedItem>({
     queryKey: [QUERY_KEYS.FEED, id],
     queryFn: () => feedApi.getFeedItem(id).then((r) => r.data),
@@ -30,7 +29,6 @@ export function useOutfitGenerator() {
 }
 
 export function useDesignersForFeedItem(feedItemId: string, location: string) {
-  const { useQuery } = require('@tanstack/react-query');
   return useQuery({
     queryKey: [QUERY_KEYS.FEED, feedItemId, 'designers', location],
     queryFn: () => feedApi.getDesignersForFeedItem(feedItemId, location).then((r) => r.data),

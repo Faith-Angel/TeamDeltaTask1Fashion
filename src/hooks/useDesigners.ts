@@ -36,7 +36,7 @@ export function useDesigner(id: string) {
 export function useToggleAvailability(designerId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => designersApi.toggleAvailability(designerId),
+    mutationFn: () => designersApi.toggleAvailability(designerId).then((r) => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.DESIGNER, designerId] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.DESIGNERS] });
@@ -47,7 +47,7 @@ export function useToggleAvailability(designerId: string) {
 export function useSubmitReview(designerId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (score: number) => designersApi.submitReview(designerId, score),
+    mutationFn: (score: number) => designersApi.submitReview(designerId, score).then((r) => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.DESIGNER, designerId] });
     },
@@ -57,7 +57,7 @@ export function useSubmitReview(designerId: string) {
 export function useUploadPortfolioImage(designerId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (file: File) => designersApi.uploadPortfolioImage(designerId, file),
+    mutationFn: (file: File) => designersApi.uploadPortfolioImage(designerId, file).then((r) => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.DESIGNER, designerId] });
     },
@@ -67,7 +67,7 @@ export function useUploadPortfolioImage(designerId: string) {
 export function useDeletePortfolioImage(designerId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (imageId: string) => designersApi.deletePortfolioImage(designerId, imageId),
+    mutationFn: (imageId: string) => designersApi.deletePortfolioImage(designerId, imageId).then((r) => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.DESIGNER, designerId] });
     },

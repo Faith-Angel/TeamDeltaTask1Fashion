@@ -35,7 +35,7 @@ export function useDeletePlannerEvent(designerId: string) {
   const queryClient = useQueryClient();
   const { removeEvent } = usePlannerStore();
   return useMutation({
-    mutationFn: (eventId: string) => plannerApi.deleteEvent(eventId),
+    mutationFn: (eventId: string) => plannerApi.deleteEvent(eventId).then((r) => r.data),
     onSuccess: (_, eventId) => {
       removeEvent(eventId);
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.PLANNER_EVENTS, designerId] });

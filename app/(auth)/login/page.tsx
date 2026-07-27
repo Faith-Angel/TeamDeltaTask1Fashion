@@ -126,7 +126,7 @@ export default function LoginPage() {
                 className={`text-sm p-3 rounded-lg ${
                   lockedUntil
                     ? 'bg-warning/10 text-warning border border-warning/30'
-                    : 'bg-red-50 text-error border border-red-200'
+                    : 'bg-error/10 text-error border border-error/20'
                 }`}
               >
                 {serverError}

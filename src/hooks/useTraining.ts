@@ -54,7 +54,7 @@ export function useRespondToApplication() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ applicationId, status }: { applicationId: string; status: 'Accepted' | 'Rejected' }) =>
-      trainingApi.respondToApplication(applicationId, status),
+      trainingApi.respondToApplication(applicationId, status).then((r) => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.TRAINING_APPLICATIONS] });
     },

@@ -125,7 +125,7 @@ function WorkspacePanel({ project }: { project: CollaborationProject }) {
             </Button>
           </div>
           {notes.length === 0 && <p className="text-xs text-textSecondary text-center py-3">No notes yet</p>}
-          {notes.map((n) => (
+          {notes.map((n: { id: string; content: string; authorName: string; createdAt: string }) => (
             <div key={n.id} className="bg-muted rounded-lg px-3 py-2">
               <p className="text-sm text-textPrimary">{n.content}</p>
               <p className="text-xs text-textSecondary mt-0.5">{n.authorName} · {timeAgo(n.createdAt)}</p>
@@ -144,7 +144,7 @@ function WorkspacePanel({ project }: { project: CollaborationProject }) {
             </Button>
           </div>
           {updates.length === 0 && <p className="text-xs text-textSecondary text-center py-3">No updates yet</p>}
-          {updates.map((u) => (
+          {updates.map((u: { id: string; content: string; authorName: string; createdAt: string }) => (
             <div key={u.id} className="bg-muted rounded-lg px-3 py-2">
               <p className="text-sm text-textPrimary">{u.content}</p>
               <p className="text-xs text-textSecondary mt-0.5">{u.authorName} · {timeAgo(u.createdAt)}</p>

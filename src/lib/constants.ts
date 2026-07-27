@@ -52,52 +52,92 @@ export const CAMEROON_REGIONS = [
   {
     value: 'centre',
     label: 'Centre',
-    cities: ['Yaoundé', 'Obala', 'Bafia', 'Mbalmayo', 'Nanga-Eboko', 'Monatélé'],
+    cities: [
+      'Yaoundé', 'Obala', 'Bafia', 'Mbalmayo', 'Nanga-Eboko', 'Monatélé',
+      'Saa', 'Ntui', 'Mfou', 'Akonolinga', 'Eseka', 'Ngoumou',
+      'Mbandjock', 'Ayos', 'Okola',
+    ],
   },
   {
     value: 'littoral',
     label: 'Littoral',
-    cities: ['Douala', 'Edéa', 'Loum', 'Nkongsamba', 'Mbanga', 'Yabassi'],
+    cities: [
+      'Douala', 'Edéa', 'Loum', 'Nkongsamba', 'Mbanga', 'Yabassi',
+      'Manjo', 'Kumba', 'Melong', 'Penja', 'Njombe', 'Dizangué',
+      'Ndom', 'Mouanko', 'Pouma',
+    ],
   },
   {
     value: 'west',
     label: 'West',
-    cities: ['Bafoussam', 'Dschang', 'Foumban', 'Mbouda', 'Bangangté', 'Foumbot'],
+    cities: [
+      'Bafoussam', 'Dschang', 'Foumban', 'Mbouda', 'Bangangté', 'Foumbot',
+      'Baham', 'Bafang', 'Bandjoun', 'Koutaba', 'Bazou', 'Massangam',
+      'Kekem', 'Tonga', 'Galim',
+    ],
   },
   {
     value: 'north-west',
     label: 'North West',
-    cities: ['Bamenda', 'Kumbo', 'Wum', 'Nkambe', 'Fundong', 'Mbengwi'],
+    cities: [
+      'Bamenda', 'Kumbo', 'Wum', 'Nkambe', 'Fundong', 'Mbengwi',
+      'Batibo', 'Ndu', 'Ako', 'Bali', 'Santa', 'Ndop',
+      'Bafut', 'Tubah', 'Misaje',
+    ],
   },
   {
     value: 'south-west',
     label: 'South West',
-    cities: ['Buea', 'Limbe', 'Kumba', 'Mundemba', 'Mamfe', 'Tiko'],
+    cities: [
+      'Buea', 'Limbe', 'Kumba', 'Mundemba', 'Mamfe', 'Tiko',
+      'Muyuka', 'Ekondo Titi', 'Bangem', 'Nguti', 'Tombel', 'Konye',
+      'Idenau', 'Meanja', 'Wabane',
+    ],
   },
   {
     value: 'north',
     label: 'North',
-    cities: ['Garoua', 'Guider', 'Pitoa', 'Figuil', 'Lagdo', 'Ngong'],
+    cities: [
+      'Garoua', 'Guider', 'Pitoa', 'Figuil', 'Lagdo', 'Ngong',
+      'Rey Bouba', 'Touboro', 'Poli', 'Bibemi', 'Demsa', 'Tchollire',
+      'Madingring', 'Sorombéo', 'Bé',
+    ],
   },
   {
     value: 'far-north',
     label: 'Far North',
-    cities: ['Maroua', 'Kousseri', 'Mokolo', 'Mora', 'Yagoua', 'Kaélé'],
+    cities: [
+      'Maroua', 'Kousseri', 'Mokolo', 'Mora', 'Yagoua', 'Kaélé',
+      'Waza', 'Mindif', 'Meri', 'Bogo', 'Hina', 'Zina',
+      'Tokombéré', 'Petté', 'Kolofata',
+    ],
   },
   {
     value: 'adamawa',
     label: 'Adamawa',
-    cities: ['Ngaoundéré', 'Meiganga', 'Tibati', 'Banyo', 'Tignère', 'Nganha'],
+    cities: [
+      'Ngaoundéré', 'Meiganga', 'Tibati', 'Banyo', 'Tignère', 'Nganha',
+      'Dir', 'Kontcha', 'Djohong', 'Belel', 'Ngaoundal', 'Mayo-Baleo',
+      'Martap', 'Mbé', 'Yoko',
+    ],
   },
   {
     value: 'east',
     label: 'East',
-    cities: ['Bertoua', 'Abong-Mbang', 'Batouri', 'Yokadouma', 'Belabo', 'Doumé'],
+    cities: [
+      'Bertoua', 'Abong-Mbang', 'Batouri', 'Yokadouma', 'Belabo', 'Doumé',
+      'Lomié', 'Ndélélé', 'Mbang', 'Kette', 'Mindourou', 'Ngoyla',
+      'Dimako', 'Messamena', 'Bélabo',
+    ],
   },
   {
     value: 'south',
     label: 'South',
-    cities: ['Ebolowa', 'Kribi', 'Sangmélima', 'Ambam', 'Lolodorf', 'Mvangué'],
+    cities: [
+      'Ebolowa', 'Kribi', 'Sangmélima', 'Ambam', 'Lolodorf', 'Mvangué',
+      'Djoum', 'Mintom', 'Ngoulemakong', 'Akom II', 'Bipindi', 'Campo',
+      'Ma\'an', 'Bengbis', 'Zoétélé',
+    ],
   },
 ] as const;
 

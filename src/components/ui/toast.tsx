@@ -60,3 +60,5 @@ export function ToastContainer() {
     </div>
   );
 }
+// Alias so Providers.tsx can import { Toaster }
+export const Toaster = ToastContainer;

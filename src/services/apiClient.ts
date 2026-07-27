@@ -133,7 +133,7 @@ export const feedApi = {
 
 // Designers
 export const designersApi = {
-  getDesigners: (params?: { location?: string; sort?: string; q?: string; cursor?: string }) => {
+  getDesigners: (params?: { location?: string; region?: string; sort?: string; q?: string; specialty?: string; minRating?: string; availability?: string; cursor?: string }) => {
     if (USE_MOCKS) {
       return Promise.resolve({ data: { items: mockDesigners(10), nextCursor: 'next', hasMore: false } });
     }
@@ -169,7 +169,7 @@ export const designersApi = {
 
 // Marketplace
 export const marketplaceApi = {
-  getListings: (params?: { category?: string; location?: string; cursor?: string }) => {
+  getListings: (params?: { category?: string; location?: string; region?: string; priceRange?: string; sort?: string; cursor?: string }) => {
     if (USE_MOCKS) {
       return Promise.resolve({ data: { items: mockListings(10), nextCursor: 'next', hasMore: false } });
     }

@@ -245,7 +245,7 @@ export default function RegisterPage() {
 
             {/* Server error */}
             {serverError && (
-              <div role="alert" className="text-sm p-3 rounded-lg bg-red-50 text-error border border-red-200">
+              <div role="alert" className="text-sm p-3 rounded-lg bg-error/10 text-error border border-error/20">
                 {serverError}
               </div>
             )}

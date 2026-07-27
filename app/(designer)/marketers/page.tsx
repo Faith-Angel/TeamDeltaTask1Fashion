@@ -19,7 +19,7 @@ function BookingModal({ marketer, onClose }: { marketer: Marketer; onClose: () =
   const [success, setSuccess] = useState(false);
   const { mutate: book, isPending } = useMutation({
     mutationFn: (data: BookingRequestInput) =>
-      marketersApi.createBooking(marketer.id, data),
+      marketersApi.createBooking(marketer.id, data).then((r) => r.data),
     onSuccess: () => setSuccess(true),
   });
 

@@ -43,7 +43,7 @@ export default function VendorOrdersPage() {
 
   const { mutate: updateDelivery, isPending: updating } = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
-      ordersApi.updateDeliveryStatus(id, status),
+      ordersApi.updateDeliveryStatus(id, status).then((r) => r.data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ORDERS, 'vendor'] }),
   });
 

@@ -43,7 +43,7 @@ export default function DesignerAppointmentsPage() {
 
   const { mutate: updateStatus, isPending: updating } = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
-      appointmentsApi.updateAppointmentStatus(id, status),
+      appointmentsApi.updateAppointmentStatus(id, status).then((r) => r.data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.APPOINTMENTS, user?.id] }),
   });
 

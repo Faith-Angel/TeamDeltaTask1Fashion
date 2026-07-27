@@ -35,7 +35,7 @@ export function useCreateCollaborationProject() {
 export function useSendInvitation(projectId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (inviteeId: string) => collaborationsApi.sendInvitation(projectId, inviteeId),
+    mutationFn: (inviteeId: string) => collaborationsApi.sendInvitation(projectId, inviteeId).then((r) => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COLLABORATION_PROJECT, projectId] });
     },
