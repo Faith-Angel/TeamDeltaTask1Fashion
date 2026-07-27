@@ -34,10 +34,7 @@
     @apply bg-background text-textPrimary;
   }
 
-  /* Minimum touch target size */
-  button, a, [role="button"] {
-    @apply min-h-[44px] min-w-[44px];
-  }
+  /* Touch targets: min 44x44pt is applied per-component via Tailwind classes */
 
   input, textarea, select {
     @apply min-h-[44px];

@@ -31,21 +31,21 @@ const quickLinks = [
     icon: <MessageCircle className="w-6 h-6" />,
     label: 'Messages',
     description: 'Chat with designers',
-    color: 'bg-blue-100 text-blue-700',
+    color: 'bg-accent/15 text-accent',
   },
   {
     href: '/training',
     icon: <BookOpen className="w-6 h-6" />,
     label: 'Training',
     description: 'Fashion training programs',
-    color: 'bg-purple-100 text-purple-700',
+    color: 'bg-primary/15 text-primaryDark',
   },
   {
     href: '/feed',
     icon: <Sparkles className="w-6 h-6" />,
     label: 'AI Outfit Generator',
     description: 'Create outfits with AI',
-    color: 'bg-pink-100 text-pink-700',
+    color: 'bg-accent/20 text-textSecondary',
   },
 ];
 

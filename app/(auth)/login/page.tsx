@@ -125,7 +125,7 @@ export default function LoginPage() {
                 role="alert"
                 className={`text-sm p-3 rounded-lg ${
                   lockedUntil
-                    ? 'bg-orange-50 text-orange-700 border border-orange-200'
+                    ? 'bg-warning/10 text-warning border border-warning/30'
                     : 'bg-red-50 text-error border border-red-200'
                 }`}
               >

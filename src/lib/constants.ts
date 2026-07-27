@@ -47,21 +47,86 @@ export const LISTING_CATEGORIES = [
   { value: 'hairstyle_products_services', label: 'Hairstyle Products & Services' },
 ] as const;
 
-export const CAMEROON_LOCATIONS = [
-  'Yaoundé',
-  'Douala',
-  'Garoua',
-  'Bamenda',
-  'Bafoussam',
-  'Ngaoundéré',
-  'Bertoua',
-  'Loum',
-  'Kumba',
-  'Edéa',
-  'Nkongsamba',
-  'Maroua',
-  'Buea',
-  'Ebolowa',
+// ── Cameroon Regions & Cities ──────────────────────────────────────────────
+export const CAMEROON_REGIONS = [
+  {
+    value: 'centre',
+    label: 'Centre',
+    cities: ['Yaoundé', 'Obala', 'Bafia', 'Mbalmayo', 'Nanga-Eboko', 'Monatélé'],
+  },
+  {
+    value: 'littoral',
+    label: 'Littoral',
+    cities: ['Douala', 'Edéa', 'Loum', 'Nkongsamba', 'Mbanga', 'Yabassi'],
+  },
+  {
+    value: 'west',
+    label: 'West',
+    cities: ['Bafoussam', 'Dschang', 'Foumban', 'Mbouda', 'Bangangté', 'Foumbot'],
+  },
+  {
+    value: 'north-west',
+    label: 'North West',
+    cities: ['Bamenda', 'Kumbo', 'Wum', 'Nkambe', 'Fundong', 'Mbengwi'],
+  },
+  {
+    value: 'south-west',
+    label: 'South West',
+    cities: ['Buea', 'Limbe', 'Kumba', 'Mundemba', 'Mamfe', 'Tiko'],
+  },
+  {
+    value: 'north',
+    label: 'North',
+    cities: ['Garoua', 'Guider', 'Pitoa', 'Figuil', 'Lagdo', 'Ngong'],
+  },
+  {
+    value: 'far-north',
+    label: 'Far North',
+    cities: ['Maroua', 'Kousseri', 'Mokolo', 'Mora', 'Yagoua', 'Kaélé'],
+  },
+  {
+    value: 'adamawa',
+    label: 'Adamawa',
+    cities: ['Ngaoundéré', 'Meiganga', 'Tibati', 'Banyo', 'Tignère', 'Nganha'],
+  },
+  {
+    value: 'east',
+    label: 'East',
+    cities: ['Bertoua', 'Abong-Mbang', 'Batouri', 'Yokadouma', 'Belabo', 'Doumé'],
+  },
+  {
+    value: 'south',
+    label: 'South',
+    cities: ['Ebolowa', 'Kribi', 'Sangmélima', 'Ambam', 'Lolodorf', 'Mvangué'],
+  },
+] as const;
+
+// Flat list for backward compatibility (register page, legacy dropdowns)
+export const CAMEROON_LOCATIONS = CAMEROON_REGIONS.flatMap((r) => r.cities);
+
+// ── Designer filter constants ───────────────────────────────────────────────
+export const DESIGNER_SPECIALTIES = [
+  { value: 'traditional', label: 'Traditional (Kaba, Toghu, Assiko)' },
+  { value: 'non-traditional', label: 'Non-Traditional / Contemporary' },
+  { value: 'bridal', label: 'Bridal & Wedding' },
+  { value: 'corporate', label: 'Corporate / Formal' },
+  { value: 'streetwear', label: 'Streetwear & Casual' },
+  { value: 'cultural', label: 'Cultural & Ceremonial' },
+] as const;
+
+export const RATING_OPTIONS = [
+  { value: '4', label: '4★ & above' },
+  { value: '3', label: '3★ & above' },
+  { value: '2', label: '2★ & above' },
+] as const;
+
+export const MARKETPLACE_PRICE_RANGES = [
+  { value: '', label: 'Any price' },
+  { value: '0-5000', label: 'Under 5,000 XAF' },
+  { value: '5000-20000', label: '5,000 – 20,000 XAF' },
+  { value: '20000-50000', label: '20,000 – 50,000 XAF' },
+  { value: '50000-100000', label: '50,000 – 100,000 XAF' },
+  { value: '100000-999999', label: 'Above 100,000 XAF' },
 ] as const;
 
 export const MAX_PORTFOLIO_IMAGES = 50;

@@ -8,6 +8,9 @@ import type { Listing, PaginatedResponse } from '@/types/models';
 interface MarketplaceFilter {
   category?: string;
   location?: string;
+  region?: string;
+  priceRange?: string;
+  sort?: string;
 }
 
 export function useMarketplace(filters?: MarketplaceFilter) {

@@ -261,7 +261,7 @@ export const appointmentsApi = {
 
 // Marketers
 export const marketersApi = {
-  getMarketers: (params?: { subRole?: string; location?: string; cursor?: string }) => {
+  getMarketers: (params?: { subRole?: string; region?: string; location?: string; styleSort?: string; cursor?: string }) => {
     if (USE_MOCKS) return Promise.resolve({ data: { items: mockMarketersList(10), nextCursor: undefined, hasMore: false } });
     return apiClient.get('/marketers', { params });
   },

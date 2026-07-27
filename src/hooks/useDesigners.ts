@@ -7,8 +7,12 @@ import type { Designer, PaginatedResponse } from '@/types/models';
 
 interface DesignersFilter {
   location?: string;
+  region?: string;
   sort?: string;
   q?: string;
+  specialty?: string;
+  minRating?: string;
+  availability?: string;
 }
 
 export function useDesigners(filters?: DesignersFilter) {
