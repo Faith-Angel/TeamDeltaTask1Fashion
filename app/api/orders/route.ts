@@ -31,7 +31,8 @@ import { db } from "@/lib/db";
 import { getAuthenticatedUser } from "@/lib/auth/helpers";
 import { unauthorizedError, validationError, internalError } from "@/lib/auth/errors";
 import { createOrderSchema } from "@/lib/validations/order";
-import { Role } from "@prisma/client";
+import { createNotification } from "@/lib/notifications";
+import { Role, NotificationType } from "@prisma/client";
 
 const MIN_ORDER_XAF = 1;
 const MAX_ORDER_XAF = 10_000_000;
@@ -158,11 +159,21 @@ export async function POST(request: NextRequest) {
             select: {
               id: true,
               storeName: true,
+              userId: true,
               user: { select: { location: true } },
             },
           },
         },
       });
+    });
+
+    // Notify the vendor of the new order
+    await createNotification({
+      recipientId: order.vendorProfile.userId,
+      type: NotificationType.order_placed,
+      title: "New Order Received",
+      body: `${authUser.fullName} placed an order worth ${order.totalXAF.toLocaleString()} XAF.`,
+      data: { orderId: order.id },
     });
 
     return NextResponse.json({ order }, { status: 201 });

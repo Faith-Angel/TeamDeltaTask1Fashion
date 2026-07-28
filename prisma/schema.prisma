@@ -525,8 +525,7 @@ enum PaymentStatus {
 }
 
 enum PaymentProvider {
-  mtn_momo
-  orange_money
+  stripe
 }
 
 enum DeliveryStatus {

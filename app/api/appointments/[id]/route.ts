@@ -25,7 +25,8 @@ import {
   updateAppointmentStatusSchema,
   VALID_TRANSITIONS,
 } from "@/lib/validations/designer";
-import { Role, AppointmentStatus } from "@prisma/client";
+import { createNotification } from "@/lib/notifications";
+import { Role, AppointmentStatus, NotificationType } from "@prisma/client";
 
 // ── GET ────────────────────────────────────────────────────────────────────────
 
@@ -180,6 +181,21 @@ export async function PATCH(
           ]
         : []),
     ]);
+
+    // Notify the client their appointment status has changed
+    const statusLabels: Partial<Record<AppointmentStatus, string>> = {
+      [AppointmentStatus.Attended]:   "Your appointment has been attended.",
+      [AppointmentStatus.Unattended]: "Your appointment was marked as unattended.",
+      [AppointmentStatus.Delivered]:  "Your appointment has been completed and delivered.",
+    };
+
+    await createNotification({
+      recipientId: appointment.clientId,
+      type: NotificationType.appointment_status_update,
+      title: "Appointment Update",
+      body: statusLabels[newStatus] ?? `Your appointment status changed to ${newStatus}.`,
+      data: { appointmentId: id },
+    });
 
     return NextResponse.json({ appointment: updated }, { status: 200 });
   } catch (err) {

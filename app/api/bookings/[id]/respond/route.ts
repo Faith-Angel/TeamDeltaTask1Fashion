@@ -33,7 +33,8 @@ import { db } from "@/lib/db";
 import { getAuthenticatedUser } from "@/lib/auth/helpers";
 import { unauthorizedError, validationError, internalError } from "@/lib/auth/errors";
 import { bookingResponseSchema } from "@/lib/validations/marketer";
-import { Role, BookingStatus, AvailabilityStatus } from "@prisma/client";
+import { createNotification } from "@/lib/notifications";
+import { Role, BookingStatus, AvailabilityStatus, NotificationType } from "@prisma/client";
 
 export async function PATCH(
   request: NextRequest,
@@ -68,6 +69,9 @@ export async function PATCH(
       include: {
         marketerProfile: {
           select: { id: true, userId: true },
+        },
+        designerProfile: {
+          select: { userId: true },
         },
       },
     });
@@ -111,12 +115,30 @@ export async function PATCH(
         }),
       ]);
 
+      // Notify the designer their booking was accepted
+      await createNotification({
+        recipientId: booking.designerProfile.userId,
+        type: NotificationType.booking_response,
+        title: "Booking Accepted",
+        body: `${authUser.fullName} accepted your booking request.`,
+        data: { bookingId: id },
+      });
+
       return NextResponse.json({ booking: updated }, { status: 200 });
     } else {
       // Decline: update booking status only
       const updated = await db.booking.update({
         where: { id },
         data: { status: BookingStatus.Declined },
+      });
+
+      // Notify the designer their booking was declined
+      await createNotification({
+        recipientId: booking.designerProfile.userId,
+        type: NotificationType.booking_response,
+        title: "Booking Declined",
+        body: `${authUser.fullName} declined your booking request.`,
+        data: { bookingId: id },
       });
 
       return NextResponse.json({ booking: updated }, { status: 200 });

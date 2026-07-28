@@ -23,7 +23,8 @@ import { db } from "@/lib/db";
 import { getAuthenticatedUser } from "@/lib/auth/helpers";
 import { unauthorizedError, validationError, internalError } from "@/lib/auth/errors";
 import { createAppointmentSchema } from "@/lib/validations/designer";
-import { Role } from "@prisma/client";
+import { createNotification } from "@/lib/notifications";
+import { Role, NotificationType } from "@prisma/client";
 
 export async function POST(request: NextRequest) {
   try {
@@ -87,6 +88,15 @@ export async function POST(request: NextRequest) {
         data: { pendingAppointmentsCount: { increment: 1 } },
       }),
     ]);
+
+    // Notify the designer of the new appointment request
+    await createNotification({
+      recipientId: profile.userId,
+      type: NotificationType.appointment_request,
+      title: "New Appointment Request",
+      body: `${authUser.fullName} has requested an appointment with you.`,
+      data: { appointmentId: appointment.id },
+    });
 
     return NextResponse.json({ appointment }, { status: 201 });
   } catch (err) {

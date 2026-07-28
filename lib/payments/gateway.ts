@@ -1,49 +1,49 @@
 /**
  * lib/payments/gateway.ts
  *
- * Unified payment gateway — abstracts MTN MoMo and Orange Money behind
- * a single interface used by the API route handlers.
+ * Payment gateway — wraps Stripe behind the same interface previously used
+ * for MTN MoMo / Orange Money, so callers (API routes) don't need to change.
  *
  * Responsibilities:
- *   - Amount validation (1–10,000,000 XAF) BEFORE contacting any provider
- *   - Dispatching to the correct provider client
+ *   - Amount validation BEFORE contacting Stripe
  *   - Creating/updating Transaction records
- *   - Rolling back Order to Pending on timeout or failure
- *   - HMAC webhook signature verification
+ *   - Rolling back Order to Pending on failure
+ *   - Verifying Stripe webhook signatures
  */
 
-import crypto from "crypto";
 import { db } from "@/lib/db";
 import { PaymentProvider, PaymentStatus, OrderStatus } from "@prisma/client";
-import { mtnRequestToPay, mtnGetPaymentStatus } from "./mtn";
-import { orangeInitiatePayment, orangeGetPaymentStatus } from "./orange";
+import {
+  stripeCreatePaymentIntent,
+  stripeGetPaymentStatus,
+  stripeRefundPayment,
+  stripeConstructWebhookEvent,
+} from "./stripe";
+import type Stripe from "stripe";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
-export const MIN_PAYMENT_XAF = 1;
+// XAF is zero-decimal for Stripe — amounts are whole-number XAF, no cents.
+// Stripe enforces a minimum charge equivalent to ~$0.50 USD; ~300 XAF covers
+// that with margin. Adjust if Stripe's minimum for XAF changes.
+export const MIN_PAYMENT_XAF = 300;
 export const MAX_PAYMENT_XAF = 10_000_000;
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 export interface InitiatePaymentParams {
-  orderId:       string;
-  amountXAF:     number;
-  provider:      PaymentProvider;
-  payerPhone:    string;
-  /** Used by Orange Money redirect flows */
-  returnUrl?:    string;
-  cancelUrl?:    string;
+  orderId: string;
+  amountXAF: number;
+  customerId?: string;
+  receiptEmail?: string;
 }
 
 export interface InitiatePaymentResult {
-  success:           boolean;
-  transactionId?:    string;
-  providerReference?: string;
-  /** Orange Money payment URL for redirect */
-  paymentUrl?:       string;
-  error?:            string;
-  /** True when provider timed out — order rolled back to Pending */
-  timedOut?:         boolean;
+  success: boolean;
+  transactionId?: string;
+  /** Client secret for Stripe.js to confirm the card payment */
+  clientSecret?: string;
+  error?: string;
 }
 
 // ── Amount validation ──────────────────────────────────────────────────────────
@@ -66,9 +66,9 @@ export function validatePaymentAmount(amountXAF: number): string | null {
 export async function initiatePayment(
   params: InitiatePaymentParams
 ): Promise<InitiatePaymentResult> {
-  const { orderId, amountXAF, provider, payerPhone } = params;
+  const { orderId, amountXAF, customerId, receiptEmail } = params;
 
-  // 1. Validate amount BEFORE contacting provider
+  // 1. Validate amount BEFORE contacting Stripe
   const amountError = validatePaymentAmount(amountXAF);
   if (amountError) {
     return { success: false, error: amountError };
@@ -77,7 +77,7 @@ export async function initiatePayment(
   // 2. Verify order exists and is in Pending payment state
   const order = await db.order.findUnique({
     where: { id: orderId },
-    select: { id: true, paymentStatus: true, totalXAF: true },
+    select: { id: true, paymentStatus: true },
   });
 
   if (!order) {
@@ -92,119 +92,58 @@ export async function initiatePayment(
   const transaction = await db.transaction.create({
     data: {
       orderId,
-      provider,
+      provider: PaymentProvider.stripe,
       amountXAF,
       status: PaymentStatus.Pending,
     },
   });
 
-  // 4. Call the provider
+  // 4. Create the Stripe PaymentIntent
   try {
-    if (provider === PaymentProvider.mtn_momo) {
-      return await handleMtn(transaction.id, amountXAF, payerPhone, orderId);
-    } else {
-      return await handleOrange(
-        transaction.id,
-        amountXAF,
-        orderId,
-        payerPhone,
-        params.returnUrl,
-        params.cancelUrl
-      );
+    const result = await stripeCreatePaymentIntent({
+      amountXAF,
+      externalId: transaction.id,
+      customerId,
+      description: `Order ${orderId}`,
+      receiptEmail,
+    });
+
+    if (!result.accepted) {
+      await rollbackOrder(orderId, transaction.id, result.error ?? "Stripe rejected request");
+      return { success: false, error: result.error ?? "Stripe payment intent creation failed." };
     }
+
+    await db.transaction.update({
+      where: { id: transaction.id },
+      data: { providerReference: result.paymentIntentId },
+    });
+
+    return {
+      success: true,
+      transactionId: transaction.id,
+      clientSecret: result.clientSecret,
+    };
   } catch (err) {
-    // Unexpected error — roll back order
     await rollbackOrder(orderId, transaction.id, String(err));
-    return { success: false, error: "Payment initiation failed unexpectedly.", timedOut: false };
+    return { success: false, error: "Payment initiation failed unexpectedly." };
   }
-}
-
-// ── MTN handler ────────────────────────────────────────────────────────────────
-
-async function handleMtn(
-  transactionId: string,
-  amountXAF:     number,
-  payerPhone:    string,
-  orderId:       string
-): Promise<InitiatePaymentResult> {
-  const result = await mtnRequestToPay({
-    amountXAF,
-    payerPhone,
-    externalId:   transactionId,
-    payerMessage: "NdoloStitch fashion purchase",
-    payeeNote:    `Order ${orderId}`,
-  });
-
-  if (!result.accepted) {
-    await rollbackOrder(orderId, transactionId, result.error ?? "MTN rejected request");
-    return { success: false, error: result.error ?? "MTN payment request failed." };
-  }
-
-  // Store the provider reference (MTN referenceId for polling)
-  await db.transaction.update({
-    where: { id: transactionId },
-    data:  { providerReference: result.referenceId },
-  });
-
-  return {
-    success:           true,
-    transactionId,
-    providerReference: result.referenceId,
-  };
-}
-
-// ── Orange handler ─────────────────────────────────────────────────────────────
-
-async function handleOrange(
-  transactionId: string,
-  amountXAF:     number,
-  orderId:       string,
-  payerPhone:    string,
-  returnUrl?:    string,
-  cancelUrl?:    string
-): Promise<InitiatePaymentResult> {
-  const result = await orangeInitiatePayment({
-    amountXAF,
-    orderId,
-    notifUrl:   `${process.env.NEXT_PUBLIC_APP_URL}/api/payments/callback`,
-    returnUrl:  returnUrl ?? `${process.env.NEXT_PUBLIC_APP_URL}/orders/${orderId}`,
-    cancelUrl:  cancelUrl ?? `${process.env.NEXT_PUBLIC_APP_URL}/cart`,
-    payerPhone,
-  });
-
-  if (!result.accepted) {
-    await rollbackOrder(orderId, transactionId, result.error ?? "Orange rejected request");
-    return { success: false, error: result.error ?? "Orange Money payment request failed." };
-  }
-
-  await db.transaction.update({
-    where: { id: transactionId },
-    data:  { providerReference: result.payToken },
-  });
-
-  return {
-    success:           true,
-    transactionId,
-    providerReference: result.payToken,
-    paymentUrl:        result.paymentUrl,
-  };
 }
 
 // ── Rollback ───────────────────────────────────────────────────────────────────
 
 export async function rollbackOrder(
-  orderId:       string,
+  orderId: string,
   transactionId: string,
-  reason:        string
+  reason: string
 ): Promise<void> {
   await db.$transaction([
     db.transaction.update({
       where: { id: transactionId },
-      data:  { status: PaymentStatus.Failed, failureReason: reason },
+      data: { status: PaymentStatus.Failed, failureReason: reason },
     }),
     db.order.update({
       where: { id: orderId },
-      data:  { paymentStatus: PaymentStatus.Pending, status: OrderStatus.Pending },
+      data: { paymentStatus: PaymentStatus.Pending, status: OrderStatus.Pending },
     }),
   ]);
 }
@@ -212,48 +151,76 @@ export async function rollbackOrder(
 // ── Confirm payment (called from webhook) ──────────────────────────────────────
 
 export async function confirmPayment(
-  transactionId:      string,
-  providerReference:  string,
-  provider:           PaymentProvider
+  transactionId: string,
+  providerReference: string
 ): Promise<void> {
   await db.$transaction([
     db.transaction.update({
       where: { id: transactionId },
       data: {
-        status:             PaymentStatus.Paid,
+        status: PaymentStatus.Paid,
         providerReference,
-        confirmedAt:        new Date(),
+        confirmedAt: new Date(),
       },
     }),
-    // Update the order's payment status via the transaction relation
     db.order.updateMany({
       where: { transactions: { some: { id: transactionId } } },
-      data:  { paymentStatus: PaymentStatus.Paid, status: OrderStatus.Confirmed },
+      data: { paymentStatus: PaymentStatus.Paid, status: OrderStatus.Confirmed },
     }),
   ]);
 }
 
-// ── HMAC webhook verification ──────────────────────────────────────────────────
+// ── Mark payment failed (called from webhook) ───────────────────────────────────
+
+export async function failPayment(
+  transactionId: string,
+  reason: string
+): Promise<void> {
+  const transaction = await db.transaction.findUnique({
+    where: { id: transactionId },
+    select: { orderId: true },
+  });
+  if (!transaction) return;
+  await rollbackOrder(transaction.orderId, transactionId, reason);
+}
+
+// ── Refund ─────────────────────────────────────────────────────────────────────
+
+export async function refundPayment(
+  transactionId: string,
+  reason?: Stripe.RefundCreateParams.Reason
+): Promise<{ success: boolean; error?: string }> {
+  const transaction = await db.transaction.findUnique({
+    where: { id: transactionId },
+    select: { providerReference: true },
+  });
+
+  if (!transaction?.providerReference) {
+    return { success: false, error: "Transaction has no Stripe payment intent reference." };
+  }
+
+  const result = await stripeRefundPayment(transaction.providerReference, reason);
+  if (!result.success) {
+    return { success: false, error: result.error };
+  }
+
+  await db.transaction.update({
+    where: { id: transactionId },
+    data: { status: PaymentStatus.Refunded },
+  });
+
+  return { success: true };
+}
+
+// ── Webhook signature verification ──────────────────────────────────────────────
 
 /**
- * Verifies the HMAC-SHA256 signature on an incoming provider webhook.
- * The raw request body and the X-Signature header are compared.
+ * Verifies a Stripe webhook signature and returns the parsed event.
+ * Throws if the signature is invalid — callers should catch and return 400.
  */
 export function verifyWebhookSignature(
-  rawBody: string,
+  rawBody: string | Buffer,
   signature: string
-): boolean {
-  const secret = process.env.PAYMENT_WEBHOOK_SECRET;
-  if (!secret) {
-    console.error("[gateway] PAYMENT_WEBHOOK_SECRET is not set");
-    return false;
-  }
-  const expected = crypto
-    .createHmac("sha256", secret)
-    .update(rawBody)
-    .digest("hex");
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expected)
-  );
+): Stripe.Event {
+  return stripeConstructWebhookEvent(rawBody, signature);
 }
