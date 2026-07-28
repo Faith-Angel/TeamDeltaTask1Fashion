@@ -1,0 +1,605 @@
+{
+  "info": {
+    "name": "NdoloStitch API",
+    "_postman_id": "ndolostitch-complete-test-suite",
+    "description": "Complete test suite for all NdoloStitch backend API routes. Base URL: http://localhost:3000",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3000" },
+    { "key": "cookie", "value": "" },
+    { "key": "designer_id", "value": "" },
+    { "key": "marketer_id", "value": "" },
+    { "key": "vendor_id", "value": "" },
+    { "key": "listing_id", "value": "" },
+    { "key": "order_id", "value": "" },
+    { "key": "appointment_id", "value": "" },
+    { "key": "booking_id", "value": "" },
+    { "key": "notification_id", "value": "" },
+    { "key": "transaction_id", "value": "" },
+    { "key": "user_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. AUTH",
+      "item": [
+        {
+          "name": "Send OTP",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Has message', () => pm.expect(pm.response.json()).to.have.property('message'));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"+237612345678\"\n}" },
+            "url": { "raw": "{{base_url}}/api/auth/send-otp", "host": ["{{base_url}}"], "path": ["api","auth","send-otp"] }
+          }
+        },
+        {
+          "name": "Verify OTP — Register Client",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 201', () => pm.response.to.have.status(201));", "const r = pm.response.json();", "pm.test('Has user', () => pm.expect(r).to.have.property('user'));", "pm.collectionVariables.set('user_id', r.user?.id ?? '');", "const cookie = pm.response.headers.get('Set-Cookie');", "if (cookie) pm.collectionVariables.set('cookie', cookie.split(';')[0]);"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"+237612345678\",\n  \"token\": \"123456\",\n  \"fullName\": \"Gloria Test\",\n  \"role\": \"Client\",\n  \"location\": \"Yaoundé\"\n}" },
+            "url": { "raw": "{{base_url}}/api/auth/verify-otp", "host": ["{{base_url}}"], "path": ["api","auth","verify-otp"] }
+          }
+        },
+        {
+          "name": "Verify OTP — Register Designer",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 201', () => pm.response.to.have.status(201));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"+237622345678\",\n  \"token\": \"123456\",\n  \"fullName\": \"Amina Designer\",\n  \"role\": \"Designer\",\n  \"location\": \"Douala\"\n}" },
+            "url": { "raw": "{{base_url}}/api/auth/verify-otp", "host": ["{{base_url}}"], "path": ["api","auth","verify-otp"] }
+          }
+        },
+        {
+          "name": "Verify OTP — Register Vendor",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 201', () => pm.response.to.have.status(201));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"+237633345678\",\n  \"token\": \"123456\",\n  \"fullName\": \"Pascal Vendor\",\n  \"role\": \"Vendor\",\n  \"location\": \"Bafoussam\"\n}" },
+            "url": { "raw": "{{base_url}}/api/auth/verify-otp", "host": ["{{base_url}}"], "path": ["api","auth","verify-otp"] }
+          }
+        },
+        {
+          "name": "Verify OTP — Register Marketer",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 201', () => pm.response.to.have.status(201));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"+237644345678\",\n  \"token\": \"123456\",\n  \"fullName\": \"Chloe Marketer\",\n  \"role\": \"Marketer\",\n  \"marketerSubRole\": \"Model\",\n  \"location\": \"Ngaoundere\"\n}" },
+            "url": { "raw": "{{base_url}}/api/auth/verify-otp", "host": ["{{base_url}}"], "path": ["api","auth","verify-otp"] }
+          }
+        },
+        {
+          "name": "Verify OTP — Login",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "const r = pm.response.json();", "pm.collectionVariables.set('user_id', r.user?.id ?? '');", "const cookie = pm.response.headers.get('Set-Cookie');", "if (cookie) pm.collectionVariables.set('cookie', cookie.split(';')[0]);"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"+237612345678\",\n  \"token\": \"123456\"\n}" },
+            "url": { "raw": "{{base_url}}/api/auth/verify-otp", "host": ["{{base_url}}"], "path": ["api","auth","verify-otp"] }
+          }
+        },
+        {
+          "name": "Get Session",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Has user', () => pm.expect(pm.response.json()).to.have.property('user'));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Cookie", "value": "{{cookie}}" }],
+            "url": { "raw": "{{base_url}}/api/auth/session", "host": ["{{base_url}}"], "path": ["api","auth","session"] }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Cookie", "value": "{{cookie}}" }],
+            "url": { "raw": "{{base_url}}/api/auth/refresh", "host": ["{{base_url}}"], "path": ["api","auth","refresh"] }
+          }
+        },
+        {
+          "name": "Logout",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Cookie", "value": "{{cookie}}" }],
+            "url": { "raw": "{{base_url}}/api/auth/logout", "host": ["{{base_url}}"], "path": ["api","auth","logout"] }
+          }
+        },
+        {
+          "name": "Send OTP — Missing phone (422)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 422', () => pm.response.to.have.status(422));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{}" },
+            "url": { "raw": "{{base_url}}/api/auth/send-otp", "host": ["{{base_url}}"], "path": ["api","auth","send-otp"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. USERS",
+      "item": [
+        {
+          "name": "Get My Profile",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Has user', () => pm.expect(pm.response.json()).to.have.property('user'));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Cookie", "value": "{{cookie}}" }],
+            "url": { "raw": "{{base_url}}/api/users/me", "host": ["{{base_url}}"], "path": ["api","users","me"] }
+          }
+        },
+        {
+          "name": "Update My Profile",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "{{cookie}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Gloria Updated\",\n  \"location\": \"Kribi\"\n}" },
+            "url": { "raw": "{{base_url}}/api/users/me", "host": ["{{base_url}}"], "path": ["api","users","me"] }
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Cookie", "value": "{{cookie}}" }],
+            "url": { "raw": "{{base_url}}/api/users/{{user_id}}", "host": ["{{base_url}}"], "path": ["api","users","{{user_id}}"] }
+          }
+        },
+        {
+          "name": "Get My Profile — No auth (401)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 401', () => pm.response.to.have.status(401));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/users/me", "host": ["{{base_url}}"], "path": ["api","users","me"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. DESIGNERS",
+      "item": [
+        {
+          "name": "List Designers (public)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Has designers array', () => pm.expect(pm.response.json()).to.have.property('designers'));", "const r = pm.response.json(); if (r.designers.length > 0) pm.collectionVariables.set('designer_id', r.designers[0].id);"], "type": "text/javascript" } }],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/designers", "host": ["{{base_url}}"], "path": ["api","designers"] }
+          }
+        },
+        {
+          "name": "List Designers — Filter by location",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/designers?location=Douala&limit=5", "host": ["{{base_url}}"], "path": ["api","designers"], "query": [{"key":"location","value":"Douala"},{"key":"limit","value":"5"}] }
+          }
+        },
+        {
+          "name": "Get Designer Profile",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Has designer', () => pm.expect(pm.response.json()).to.have.property('designer'));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/designers/{{designer_id}}", "host": ["{{base_url}}"], "path": ["api","designers","{{designer_id}}"] }
+          }
+        },
+        {
+          "name": "Toggle Availability (Designer only)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "{{cookie}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"availability\": \"Unavailable\"\n}" },
+            "url": { "raw": "{{base_url}}/api/designers/{{designer_id}}/availability", "host": ["{{base_url}}"], "path": ["api","designers","{{designer_id}}","availability"] }
+          }
+        },
+        {
+          "name": "Get Designer Appointments (Designer only)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Cookie", "value": "{{cookie}}" }],
+            "url": { "raw": "{{base_url}}/api/designers/{{designer_id}}/appointments", "host": ["{{base_url}}"], "path": ["api","designers","{{designer_id}}","appointments"] }
+          }
+        },
+        {
+          "name": "Get Designer Profile — Invalid ID (404)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 404', () => pm.response.to.have.status(404));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/designers/nonexistent-id-000", "host": ["{{base_url}}"], "path": ["api","designers","nonexistent-id-000"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. APPOINTMENTS",
+      "item": [
+        {
+          "name": "Create Appointment (Client only)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 201', () => pm.response.to.have.status(201));", "const r = pm.response.json(); pm.collectionVariables.set('appointment_id', r.appointment?.id ?? '');"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "{{cookie}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"designerProfileId\": \"{{designer_id}}\",\n  \"notes\": \"I need a Toghu outfit for a ceremony\"\n}" },
+            "url": { "raw": "{{base_url}}/api/appointments", "host": ["{{base_url}}"], "path": ["api","appointments"] }
+          }
+        },
+        {
+          "name": "Get Appointment by ID",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Has appointment', () => pm.expect(pm.response.json()).to.have.property('appointment'));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Cookie", "value": "{{cookie}}" }],
+            "url": { "raw": "{{base_url}}/api/appointments/{{appointment_id}}", "host": ["{{base_url}}"], "path": ["api","appointments","{{appointment_id}}"] }
+          }
+        },
+        {
+          "name": "Update Appointment Status — Attended (Designer only)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "{{cookie}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"Attended\"\n}" },
+            "url": { "raw": "{{base_url}}/api/appointments/{{appointment_id}}", "host": ["{{base_url}}"], "path": ["api","appointments","{{appointment_id}}"] }
+          }
+        },
+        {
+          "name": "Update Appointment Status — Delivered (Designer only)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "{{cookie}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"Delivered\"\n}" },
+            "url": { "raw": "{{base_url}}/api/appointments/{{appointment_id}}", "host": ["{{base_url}}"], "path": ["api","appointments","{{appointment_id}}"] }
+          }
+        },
+        {
+          "name": "Create Appointment — No auth (401)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 401', () => pm.response.to.have.status(401));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"designerProfileId\": \"{{designer_id}}\"\n}" },
+            "url": { "raw": "{{base_url}}/api/appointments", "host": ["{{base_url}}"], "path": ["api","appointments"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. MARKETPLACE",
+      "item": [
+        {
+          "name": "Browse Marketplace (public)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Has listings', () => pm.expect(pm.response.json()).to.have.property('listings'));", "const r = pm.response.json(); if (r.listings.length > 0) pm.collectionVariables.set('listing_id', r.listings[0].id);"], "type": "text/javascript" } }],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/marketplace", "host": ["{{base_url}}"], "path": ["api","marketplace"] }
+          }
+        },
+        {
+          "name": "Browse Marketplace — Filter by category",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/marketplace?category=clothes&limit=10", "host": ["{{base_url}}"], "path": ["api","marketplace"], "query": [{"key":"category","value":"clothes"},{"key":"limit","value":"10"}] }
+          }
+        },
+        {
+          "name": "Get Listing Detail (public)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Has listing', () => pm.expect(pm.response.json()).to.have.property('listing'));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/marketplace/{{listing_id}}", "host": ["{{base_url}}"], "path": ["api","marketplace","{{listing_id}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. VENDOR",
+      "item": [
+        {
+          "name": "Create Listing (Vendor only)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 201', () => pm.response.to.have.status(201));", "const r = pm.response.json(); pm.collectionVariables.set('listing_id', r.listing?.id ?? '');"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "{{cookie}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Traditional Kaba\",\n  \"category\": \"clothes\",\n  \"description\": \"Beautiful hand-woven kaba from Bamileke region, perfect for ceremonies.\",\n  \"priceXAF\": 25000,\n  \"images\": []\n}" },
+            "url": { "raw": "{{base_url}}/api/vendor/listings", "host": ["{{base_url}}"], "path": ["api","vendor","listings"] }
+          }
+        },
+        {
+          "name": "List My Listings (Vendor only)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Has listings', () => pm.expect(pm.response.json()).to.have.property('listings'));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Cookie", "value": "{{cookie}}" }],
+            "url": { "raw": "{{base_url}}/api/vendor/listings", "host": ["{{base_url}}"], "path": ["api","vendor","listings"] }
+          }
+        },
+        {
+          "name": "Update Listing (Vendor only)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "{{cookie}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"priceXAF\": 28000,\n  \"description\": \"Updated description — now available in multiple sizes.\"\n}" },
+            "url": { "raw": "{{base_url}}/api/vendor/listings/{{listing_id}}", "host": ["{{base_url}}"], "path": ["api","vendor","listings","{{listing_id}}"] }
+          }
+        },
+        {
+          "name": "Toggle Stock (Vendor only)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "{{cookie}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"inStock\": false\n}" },
+            "url": { "raw": "{{base_url}}/api/vendor/listings/{{listing_id}}/stock", "host": ["{{base_url}}"], "path": ["api","vendor","listings","{{listing_id}}","stock"] }
+          }
+        },
+        {
+          "name": "List Vendor Orders (Vendor only)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Has orders', () => pm.expect(pm.response.json()).to.have.property('orders'));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Cookie", "value": "{{cookie}}" }],
+            "url": { "raw": "{{base_url}}/api/vendor/orders", "host": ["{{base_url}}"], "path": ["api","vendor","orders"] }
+          }
+        },
+        {
+          "name": "Delete Listing (Vendor only)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Cookie", "value": "{{cookie}}" }],
+            "url": { "raw": "{{base_url}}/api/vendor/listings/{{listing_id}}", "host": ["{{base_url}}"], "path": ["api","vendor","listings","{{listing_id}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. ORDERS",
+      "item": [
+        {
+          "name": "Create Order (Client only)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 201', () => pm.response.to.have.status(201));", "const r = pm.response.json(); pm.collectionVariables.set('order_id', r.order?.id ?? '');"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "{{cookie}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"items\": [\n    { \"listingId\": \"{{listing_id}}\", \"quantity\": 1 }\n  ],\n  \"deliveryFeeXAF\": 1500\n}" },
+            "url": { "raw": "{{base_url}}/api/orders", "host": ["{{base_url}}"], "path": ["api","orders"] }
+          }
+        },
+        {
+          "name": "List My Orders (Client only)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Has orders', () => pm.expect(pm.response.json()).to.have.property('orders'));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Cookie", "value": "{{cookie}}" }],
+            "url": { "raw": "{{base_url}}/api/orders", "host": ["{{base_url}}"], "path": ["api","orders"] }
+          }
+        },
+        {
+          "name": "Get Order by ID",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Has order', () => pm.expect(pm.response.json()).to.have.property('order'));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Cookie", "value": "{{cookie}}" }],
+            "url": { "raw": "{{base_url}}/api/orders/{{order_id}}", "host": ["{{base_url}}"], "path": ["api","orders","{{order_id}}"] }
+          }
+        },
+        {
+          "name": "Update Delivery Status — InTransit (Vendor only)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "{{cookie}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"deliveryStatus\": \"InTransit\",\n  \"deliveryRef\": \"CAMPOST-2025-001\"\n}" },
+            "url": { "raw": "{{base_url}}/api/orders/{{order_id}}/delivery", "host": ["{{base_url}}"], "path": ["api","orders","{{order_id}}","delivery"] }
+          }
+        },
+        {
+          "name": "Update Delivery Status — Delivered (Vendor only)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "{{cookie}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"deliveryStatus\": \"Delivered\"\n}" },
+            "url": { "raw": "{{base_url}}/api/orders/{{order_id}}/delivery", "host": ["{{base_url}}"], "path": ["api","orders","{{order_id}}","delivery"] }
+          }
+        },
+        {
+          "name": "Create Order — Out of stock (409)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 409', () => pm.response.to.have.status(409));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "{{cookie}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"items\": [\n    { \"listingId\": \"{{listing_id}}\", \"quantity\": 1 }\n  ],\n  \"deliveryFeeXAF\": 0\n}" },
+            "url": { "raw": "{{base_url}}/api/orders", "host": ["{{base_url}}"], "path": ["api","orders"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. PAYMENTS",
+      "item": [
+        {
+          "name": "Initiate Payment (Client only)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Has clientSecret', () => pm.expect(pm.response.json()).to.have.property('clientSecret'));", "const r = pm.response.json(); pm.collectionVariables.set('transaction_id', r.transactionId ?? '');"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "{{cookie}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"orderId\": \"{{order_id}}\",\n  \"receiptEmail\": \"gloria@test.com\"\n}" },
+            "url": { "raw": "{{base_url}}/api/payments", "host": ["{{base_url}}"], "path": ["api","payments"] }
+          }
+        },
+        {
+          "name": "Initiate Payment — Missing orderId (422)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 422', () => pm.response.to.have.status(422));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "{{cookie}}" }],
+            "body": { "mode": "raw", "raw": "{}" },
+            "url": { "raw": "{{base_url}}/api/payments", "host": ["{{base_url}}"], "path": ["api","payments"] }
+          }
+        },
+        {
+          "name": "Initiate Payment — Order not found (404)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 404', () => pm.response.to.have.status(404));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "{{cookie}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"orderId\": \"nonexistent-order-id\"\n}" },
+            "url": { "raw": "{{base_url}}/api/payments", "host": ["{{base_url}}"], "path": ["api","payments"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. MARKETERS",
+      "item": [
+        {
+          "name": "List Marketers (Designer only)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Has marketers', () => pm.expect(pm.response.json()).to.have.property('marketers'));", "const r = pm.response.json(); if (r.marketers.length > 0) pm.collectionVariables.set('marketer_id', r.marketers[0].id);"], "type": "text/javascript" } }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Cookie", "value": "{{cookie}}" }],
+            "url": { "raw": "{{base_url}}/api/marketers", "host": ["{{base_url}}"], "path": ["api","marketers"] }
+          }
+        },
+        {
+          "name": "Get Marketer Profile (Designer only)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Cookie", "value": "{{cookie}}" }],
+            "url": { "raw": "{{base_url}}/api/marketers/{{marketer_id}}", "host": ["{{base_url}}"], "path": ["api","marketers","{{marketer_id}}"] }
+          }
+        },
+        {
+          "name": "Send Booking Request (Designer only)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 201', () => pm.response.to.have.status(201));", "const r = pm.response.json(); pm.collectionVariables.set('booking_id', r.booking?.id ?? '');"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "{{cookie}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"description\": \"Need a model for my new Toghu collection photoshoot.\",\n  \"proposedStartDate\": \"2026-09-01T09:00:00.000Z\",\n  \"proposedEndDate\": \"2026-09-03T17:00:00.000Z\"\n}" },
+            "url": { "raw": "{{base_url}}/api/marketers/{{marketer_id}}/bookings", "host": ["{{base_url}}"], "path": ["api","marketers","{{marketer_id}}","bookings"] }
+          }
+        },
+        {
+          "name": "Respond to Booking — Accept (Marketer only)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "{{cookie}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"decision\": \"accept\"\n}" },
+            "url": { "raw": "{{base_url}}/api/bookings/{{booking_id}}/respond", "host": ["{{base_url}}"], "path": ["api","bookings","{{booking_id}}","respond"] }
+          }
+        },
+        {
+          "name": "Respond to Booking — Decline (Marketer only)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "{{cookie}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"decision\": \"decline\"\n}" },
+            "url": { "raw": "{{base_url}}/api/bookings/{{booking_id}}/respond", "host": ["{{base_url}}"], "path": ["api","bookings","{{booking_id}}","respond"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. NOTIFICATIONS",
+      "item": [
+        {
+          "name": "List Notifications",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Has notifications', () => pm.expect(pm.response.json()).to.have.property('notifications'));", "pm.test('Has unreadCount', () => pm.expect(pm.response.json()).to.have.property('unreadCount'));", "const r = pm.response.json(); if (r.notifications.length > 0) pm.collectionVariables.set('notification_id', r.notifications[0].id);"], "type": "text/javascript" } }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Cookie", "value": "{{cookie}}" }],
+            "url": { "raw": "{{base_url}}/api/notifications", "host": ["{{base_url}}"], "path": ["api","notifications"] }
+          }
+        },
+        {
+          "name": "List Notifications — Unread only",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Cookie", "value": "{{cookie}}" }],
+            "url": { "raw": "{{base_url}}/api/notifications?unread=true", "host": ["{{base_url}}"], "path": ["api","notifications"], "query": [{"key":"unread","value":"true"}] }
+          }
+        },
+        {
+          "name": "Mark One Notification Read",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Is read', () => pm.expect(pm.response.json().notification?.read).to.be.true);"], "type": "text/javascript" } }],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Cookie", "value": "{{cookie}}" }],
+            "url": { "raw": "{{base_url}}/api/notifications/{{notification_id}}/read", "host": ["{{base_url}}"], "path": ["api","notifications","{{notification_id}}","read"] }
+          }
+        },
+        {
+          "name": "Mark All Notifications Read",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('Has updatedCount', () => pm.expect(pm.response.json()).to.have.property('updatedCount'));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Cookie", "value": "{{cookie}}" }],
+            "url": { "raw": "{{base_url}}/api/notifications/read-all", "host": ["{{base_url}}"], "path": ["api","notifications","read-all"] }
+          }
+        },
+        {
+          "name": "List Notifications — No auth (401)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 401', () => pm.response.to.have.status(401));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/notifications", "host": ["{{base_url}}"], "path": ["api","notifications"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. FEED",
+      "item": [
+        {
+          "name": "Get Designers for Feed (Client only)",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Cookie", "value": "{{cookie}}" }],
+            "url": { "raw": "{{base_url}}/api/feed/send-to-designer", "host": ["{{base_url}}"], "path": ["api","feed","send-to-designer"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "12. ACCOUNT DELETE",
+      "item": [
+        {
+          "name": "Delete My Account",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"], "type": "text/javascript" } }],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Cookie", "value": "{{cookie}}" }],
+            "url": { "raw": "{{base_url}}/api/users/me/delete", "host": ["{{base_url}}"], "path": ["api","users","me","delete"] }
+          }
+        }
+      ]
+    }
+  ]
+}

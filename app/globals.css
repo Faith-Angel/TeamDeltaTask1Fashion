@@ -1,0 +1,184 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Afrocentric CSS Design Tokens ─────────────────────────────────────────── */
+/* These map the Tailwind palette tokens to shadcn/ui's HSL CSS variable system */
+
+@layer base {
+  :root {
+    /* Background / foreground */
+    --background: 40 33% 98%;       /* warm off-white */
+    --foreground: 20 14% 12%;       /* deep charcoal */
+
+    /* Card surfaces */
+    --card: 40 30% 96%;
+    --card-foreground: 20 14% 12%;
+
+    /* Popover / dropdown */
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 14% 12%;
+
+    /* Primary — Kente Gold #FFC107 */
+    --primary: 45 100% 51%;
+    --primary-foreground: 20 14% 10%;
+
+    /* Secondary — Bamileke Earth #5D4037 */
+    --secondary: 16 24% 28%;
+    --secondary-foreground: 40 33% 98%;
+
+    /* Muted surfaces */
+    --muted: 40 20% 90%;
+    --muted-foreground: 20 10% 45%;
+
+    /* Accent — Savanna Bloom #558B2F */
+    --accent: 88 50% 36%;
+    --accent-foreground: 40 33% 98%;
+
+    /* Destructive */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Border / input / ring */
+    --border: 40 20% 82%;
+    --input: 40 20% 82%;
+    --ring: 45 100% 51%;            /* Kente Gold ring on focus */
+
+    /* Border radius */
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    /* Dark mode — Congo Royale as the dominant dark surface */
+    --background: 270 55% 8%;       /* very dark purple-black */
+    --foreground: 40 33% 95%;       /* warm off-white */
+
+    --card: 270 40% 12%;
+    --card-foreground: 40 33% 95%;
+
+    --popover: 270 40% 10%;
+    --popover-foreground: 40 33% 95%;
+
+    /* Primary — Kente Gold stays the same */
+    --primary: 45 100% 51%;
+    --primary-foreground: 20 14% 10%;
+
+    /* Secondary — slightly lighter earth */
+    --secondary: 16 24% 38%;
+    --secondary-foreground: 40 33% 98%;
+
+    --muted: 270 20% 20%;
+    --muted-foreground: 40 15% 65%;
+
+    /* Accent — Savanna Bloom brightened */
+    --accent: 88 50% 46%;
+    --accent-foreground: 40 33% 98%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 270 20% 22%;
+    --input: 270 20% 22%;
+    --ring: 45 100% 51%;
+  }
+}
+
+/* ── Base resets ────────────────────────────────────────────────────────────── */
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    /* Smooth font rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Accessible focus ring — Kente Gold */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Remove default button styles */
+  button {
+    @apply cursor-pointer;
+  }
+
+  /* Sensible image defaults */
+  img,
+  video {
+    @apply max-w-full;
+  }
+}
+
+/* ── Utility classes ────────────────────────────────────────────────────────── */
+
+@layer utilities {
+  /* Afrocentric gradient — Gold to Sunset */
+  .gradient-kente {
+    background: linear-gradient(135deg, #FFC107 0%, #FF6F00 100%);
+  }
+
+  /* Afrocentric gradient — Royale to Earth */
+  .gradient-royale {
+    background: linear-gradient(135deg, #4A148C 0%, #5D4037 100%);
+  }
+
+  /* Subtle card glow for featured items */
+  .glow-gold {
+    box-shadow: 0 0 0 1px rgba(255, 193, 7, 0.3),
+                0 4px 24px rgba(255, 193, 7, 0.12);
+  }
+
+  /* Text gradient — Gold to Sunset */
+  .text-gradient-kente {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #FFC107 0%, #FF6F00 100%);
+  }
+
+  /* Full-bleed section helper */
+  .section-padding {
+    @apply px-4 py-12 sm:px-6 lg:px-8;
+  }
+
+  /* Truncate to N lines */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* ── Scrollbar styling ──────────────────────────────────────────────────────── */
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: theme("colors.kente-gold.500") transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: theme("colors.kente-gold.500");
+    border-radius: 9999px;
+  }
+}
