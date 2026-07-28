@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { Bell, ShoppingCart, Leaf, Menu } from 'lucide-react';
+import { Bell, ShoppingCart, Menu } from 'lucide-react';
+import { NdoloLogo } from '@/components/ui/NdoloLogo';
 import { useCartStore } from '@/stores/cartStore';
 import { useNotificationStore } from '@/stores/notificationStore';
 import { useAuth } from '@/hooks/useAuth';
@@ -31,11 +32,10 @@ export default function TopBar({ onMenuClick, showCart = false, role }: TopBarPr
       {/* Logo */}
       <Link
         href={role === 'Designer' ? '/designer/dashboard' : role === 'Vendor' ? '/vendor/dashboard' : role === 'Marketer' ? '/marketer/dashboard' : '/dashboard'}
-        className="flex items-center gap-2 font-bold text-primary text-lg min-h-[44px] min-w-[44px]"
+        className="min-h-[44px] flex items-center"
         aria-label="ndolostitch home"
       >
-        <Leaf className="w-5 h-5" aria-hidden="true" />
-        <span className="hidden sm:inline">ndolostitch</span>
+        <NdoloLogo size="sm" />
       </Link>
 
       <div className="flex-1" />

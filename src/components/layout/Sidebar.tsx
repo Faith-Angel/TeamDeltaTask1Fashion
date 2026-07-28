@@ -6,8 +6,9 @@ import { usePathname } from 'next/navigation';
 import {
   Home, Grid, ShoppingBag, MessageCircle, BookOpen,
   Calendar, Briefcase, Package, ClipboardList,
-  Users, Star, LogOut, X, Scissors
+  Users, Star, LogOut, X
 } from 'lucide-react';
+import { NdoloLogo } from '@/components/ui/NdoloLogo';
 import { cn, getInitials } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useUIStore } from '@/stores/uiStore';
@@ -86,11 +87,8 @@ export function Sidebar() {
       >
         {/* Logo */}
         <div className="flex items-center justify-between p-4 border-b border-border">
-          <Link href="/" className="flex items-center gap-2" aria-label={`${APP_NAME} home`}>
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
-              <Scissors className="h-4 w-4 text-white" />
-            </div>
-            <span className="text-lg font-bold text-primary">{APP_NAME}</span>
+          <Link href="/" className="flex items-center" aria-label={`${APP_NAME} home`}>
+            <NdoloLogo size="sm" />
           </Link>
           <button
             onClick={() => setSidebarOpen(false)}

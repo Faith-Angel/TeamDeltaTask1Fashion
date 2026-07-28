@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { Eye, EyeOff, Leaf } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
+import { NdoloLogo } from '@/components/ui/NdoloLogo';
 import { useAuth } from '@/hooks/useAuth';
 import { loginSchema, type LoginInput } from '@/validation/schemas';
 import { Button } from '@/components/ui/button';
@@ -53,10 +54,9 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary mb-4">
-            <Leaf className="w-8 h-8 text-white" aria-hidden="true" />
+          <div className="flex justify-center mb-2">
+            <NdoloLogo size="lg" />
           </div>
-          <h1 className="text-3xl font-bold text-primary">ndolostitch</h1>
           <p className="text-textSecondary mt-1">Cameroon&apos;s Fashion Platform</p>
         </div>
 
