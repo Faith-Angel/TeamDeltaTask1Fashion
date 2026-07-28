@@ -7,68 +7,118 @@ interface NdoloLogoProps {
 }
 
 /**
- * NdoloStitch Logo — Needle & Thread with Cameroonian motif.
- * The needle points diagonally, thread loops in the shape of a kente-inspired curve.
- * Colours: Savanna green (primary) + warm gold (accent) echoing the Cameroonian flag palette.
+ * NdoloStitch Logo
+ * A fashion-forward sewing needle with thread through the eye.
+ * Cameroonian palette: savanna green + gold + white thread.
+ * The needle sits at ~45°, thread enters the eye and flows in an elegant S-curve.
  */
 export function NdoloLogo({ className = '', showText = true, size = 'md' }: NdoloLogoProps) {
-  const dims = { sm: 28, md: 36, lg: 48 }[size];
-  const textSize = { sm: 'text-base', md: 'text-lg', lg: 'text-2xl' }[size];
+  const dims = { sm: 32, md: 40, lg: 52 }[size];
+  const textSize = { sm: 'text-base', md: 'text-xl', lg: 'text-3xl' }[size];
+  const fontStyle = { sm: 'tracking-tight', md: 'tracking-tight', lg: 'tracking-tight' }[size];
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
+    <div className={`flex items-center gap-2 ${className}`} role="img" aria-label="NdoloStitch logo">
       <svg
         width={dims}
         height={dims}
-        viewBox="0 0 40 40"
+        viewBox="0 0 44 44"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
       >
-        {/* Circular background — kente-inspired ring */}
-        <circle cx="20" cy="20" r="19" fill="#558B2F" />
-        <circle cx="20" cy="20" r="19" fill="none" stroke="#F9A825" strokeWidth="1.5" strokeDasharray="4 2" />
+        {/* ── Deep green circle background ── */}
+        <circle cx="22" cy="22" r="21" fill="#3E6B1F" />
 
-        {/* Needle body — diagonal, thick */}
+        {/* ── Subtle inner ring — elegance detail ── */}
+        <circle cx="22" cy="22" r="19.5" fill="none" stroke="#4A7C25" strokeWidth="1" />
+
+        {/* ══ NEEDLE — drawn at ~135° (top-right to bottom-left diagonal) ══
+            The needle body is a slim rounded rectangle.
+            Top = the eye end (blunt, with hole).
+            Bottom = the sharp point.
+        */}
+
+        {/* Needle body — slim gold bar, rotated 135° */}
         <rect
-          x="11"
-          y="7"
-          width="3.5"
-          height="18"
+          x="20.25" y="7"
+          width="3.5" height="22"
           rx="1.75"
           fill="#F9A825"
-          transform="rotate(15 11 7)"
+          transform="rotate(40 22 22)"
         />
 
-        {/* Needle eye — the hole at the top */}
+        {/* Needle highlight — thin lighter stripe down the middle */}
+        <rect
+          x="21.4" y="7.5"
+          width="1.2" height="20"
+          rx="0.6"
+          fill="#FDD835"
+          opacity="0.6"
+          transform="rotate(40 22 22)"
+        />
+
+        {/* Needle tip — sharp pointed end (bottom-left of the rotated needle) */}
+        {/* Covered by the rounded rect above — the rx handles the tip elegantly */}
+
+        {/* ══ NEEDLE EYE — the hole at the blunt top end ══
+            After rotate(40°), the "top" of the needle is at roughly (28, 10).
+            The eye is a small ellipse cut into the needle.
+        */}
         <ellipse
-          cx="13.5"
-          cy="10"
-          rx="1"
-          ry="1.6"
-          fill="#558B2F"
-          transform="rotate(15 13.5 10)"
+          cx="28.2" cy="11.5"
+          rx="1.1" ry="1.8"
+          fill="#3E6B1F"
+          transform="rotate(40 28.2 11.5)"
         />
 
-        {/* Thread — loops elegantly below the needle, gold colour */}
+        {/* ══ THREAD — enters through the eye, flows in an elegant S-curve ══
+            Starts at the eye (~28, 10), loops up and to the right (tail above eye),
+            then flows down through the eye, arcs left and down in a graceful
+            tailor's-thread curve, ending with a small loop at the bottom.
+        */}
+
+        {/* Thread tail above the eye (the short end above) */}
         <path
-          d="M16 18 C18 22, 22 20, 24 24 C26 28, 22 32, 18 30 C14 28, 13 24, 16 22"
-          stroke="#FFFFFF"
-          strokeWidth="1.8"
+          d="M 30 8.5 C 32 7, 34 8, 33 10"
+          stroke="white"
+          strokeWidth="1.4"
           strokeLinecap="round"
           fill="none"
+          opacity="0.9"
         />
 
-        {/* Small star / asterisk — Cameroonian flag motif */}
+        {/* Main thread — from eye, flowing down-left in an S-curve */}
         <path
-          d="M29 11 L30 9 L31 11 L33 11 L31.5 12.5 L32 14.5 L30 13.5 L28 14.5 L28.5 12.5 L27 11 Z"
-          fill="#F9A825"
+          d="M 27.5 13 C 25 17, 28 21, 23 25 C 18 29, 14 27, 13 32"
+          stroke="white"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+          opacity="0.95"
+        />
+
+        {/* Thread loop at the bottom — elegant finishing loop */}
+        <path
+          d="M 13 32 C 11 34, 10 37, 13 37 C 16 37, 16 34, 14 33"
+          stroke="white"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          fill="none"
           opacity="0.9"
+        />
+
+        {/* ══ CAMEROONIAN STAR — 5-pointed, top-right corner ══ */}
+        <path
+          d="M 34 8 L 34.9 10.7 L 37.7 10.7 L 35.5 12.4 L 36.3 15.1 L 34 13.5 L 31.7 15.1 L 32.5 12.4 L 30.3 10.7 L 33.1 10.7 Z"
+          fill="#F9A825"
+          opacity="0.95"
         />
       </svg>
 
       {showText && (
-        <span className={`font-bold text-primary ${textSize}`}>
+        <span className={`font-bold text-primary ${textSize} ${fontStyle} select-none`}>
           ndolostitch
         </span>
       )}
