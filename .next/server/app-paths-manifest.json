@@ -1,10 +1,9 @@
 {
   "/manifest.webmanifest/route": "app/manifest.webmanifest/route.js",
-  "/_not-found/page": "app/_not-found/page.js",
-  "/(auth)/login/page": "app/(auth)/login/page.js",
   "/(auth)/register/page": "app/(auth)/register/page.js",
+  "/(client)/dashboard/page": "app/(client)/dashboard/page.js",
+  "/(client)/feed/page": "app/(client)/feed/page.js",
+  "/(client)/designers/page": "app/(client)/designers/page.js",
   "/(client)/marketplace/page": "app/(client)/marketplace/page.js",
-  "/(client)/checkout/page": "app/(client)/checkout/page.js",
-  "/notifications/page": "app/notifications/page.js",
-  "/guest/feed/page": "app/guest/feed/page.js"
+  "/(client)/cart/page": "app/(client)/cart/page.js"
 }
