@@ -10,8 +10,8 @@ AI-Powered platform connecting customers with verified Cameroonian fashion desig
 
 | Name        | Role               | Branch               | Owns                          |
 |-------------|--------------------|----------------------|-------------------------------|
-| Jeason Angel | Frontend Developer | `feature/frontend`  | `app/` `components/`          |
-| Faith Angel  | Backend Developer  | `feature/backend`   | `lib/` `api/` `prisma/`       |
+| Faith Angel | Frontend Developer | `feature/frontend`  | `app/` `components/`          |
+| Jeason Angel  | Backend Developer  | `feature/backend`   | `lib/` `api/` `prisma/`       |
 | Gabe         | MLOps Engineer     | `feature/ml`        | `ml-service/`                 |
 | Deyo         | DevOps Engineer    | `feature/devops`    | `.github/` `vercel.json`      |
 
@@ -21,11 +21,11 @@ AI-Powered platform connecting customers with verified Cameroonian fashion desig
 
 ```
 ndolostitch/
-├── app/                  # Next.js 15 App Router pages (Jeason)
-├── components/           # Shared UI components (Jeason)
-├── lib/                  # DB, auth, and utility helpers (Faith)
-├── api/                  # API route handlers (Faith)
-├── prisma/               # Prisma schema and migrations (Faith)
+├── app/                  # Next.js 15 App Router pages (Faith)
+├── components/           # Shared UI components (Faith)
+├── lib/                  # DB, auth, and utility helpers (Jeason)
+├── api/                  # API route handlers (Jeason)
+├── prisma/               # Prisma schema and migrations (Jeason)
 ├── ml-service/           # FastAPI ML service — Python (Gabe)
 └── .github/workflows/    # CI/CD pipelines (Deyo)
 ```
