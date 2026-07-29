@@ -31,7 +31,7 @@ ml-service/venv/
 ml-service/*.egg-info/
 ml-service/dist/
 ml-service/.pytest_cache/
-ml-service/models/        # large model files — too big for Git
+ml-service/models/
 
 # Logs
 *.log

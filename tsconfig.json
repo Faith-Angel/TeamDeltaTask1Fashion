@@ -19,6 +19,15 @@
       }
     ],
     "paths": {
+      "@/components/*": ["./src/components/*", "./components/*"],
+      "@/hooks/*": ["./src/hooks/*"],
+      "@/stores/*": ["./src/stores/*"],
+      "@/services/*": ["./src/services/*"],
+      "@/types/*": ["./src/types/*"],
+      "@/validation/*": ["./src/validation/*"],
+      "@/theme/*": ["./src/theme/*"],
+      "@/i18n/*": ["./src/i18n/*"],
+      "@/lib/*": ["./lib/*", "./src/lib/*"],
       "@/*": ["./*"]
     }
   },

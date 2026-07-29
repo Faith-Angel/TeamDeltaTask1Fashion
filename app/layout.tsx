@@ -1,33 +1,9 @@
-/**
- * app/layout.tsx
- *
- * Root layout — wraps every page in the application.
- *
- * Responsibilities:
- *   - Sets the HTML lang attribute (bilingual EN/FR support)
- *   - Loads global CSS (Tailwind base + Afrocentric CSS variables)
- *   - Provides the React Query client to all client components
- *   - Sets default Open Graph metadata for the platform
- */
-
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import { Providers } from "@/components/providers";
+import Providers from "@/components/layout/Providers";
 
-// ── Fonts ──────────────────────────────────────────────────────────────────────
-
-const geistSans = Geist({
-  variable: "--font-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-});
-
-// ── Metadata ───────────────────────────────────────────────────────────────────
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   title: {
@@ -44,6 +20,15 @@ export const metadata: Metadata = {
     "NdoloStitch",
   ],
   authors: [{ name: "NdoloStitch Team" }],
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "NdoloStitch",
+  },
+  icons: {
+    apple: "/icons/apple-touch-icon.png",
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -65,12 +50,11 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#FFC107", // Kente Gold
+  themeColor: "#558B2F",
   width: "device-width",
   initialScale: 1,
+  maximumScale: 1,
 };
-
-// ── Root Layout ────────────────────────────────────────────────────────────────
 
 export default function RootLayout({
   children,
@@ -80,7 +64,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-background text-foreground`}
+        className={`${inter.variable} font-sans bg-background text-textPrimary antialiased`}
       >
         <Providers>{children}</Providers>
       </body>

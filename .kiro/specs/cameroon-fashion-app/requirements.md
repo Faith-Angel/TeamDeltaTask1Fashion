@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This document defines the requirements for a cross-platform mobile application built with React Native, targeting the fashion industry in Cameroon. The app connects four distinct user roles — Clients, Designers, Vendors, and Marketers — through a unified platform that enables fashion discovery, designer collaboration, marketplace commerce, and marketer bookings. The platform features an Afrocentric UI aesthetic and integrates local payment solutions (MTN Mobile Money and Orange Money) to serve the Cameroonian market.
+This document defines the requirements for **NdoloStitch** — a Next.js 15 Progressive Web App (PWA) targeting the fashion industry in Cameroon. The app connects four distinct user roles — Clients, Designers, Vendors, and Marketers — through a unified platform that enables fashion discovery, designer collaboration, marketplace commerce, and marketer bookings. The platform features a Savanna Bloom Afrocentric UI aesthetic and integrates local payment solutions (MTN Mobile Money and Orange Money) to serve the Cameroonian market.
 
 Requirements 14–16 extend the platform with three additional capabilities: Designer Training Programs (enabling Designers to create structured courses that Clients can enroll in via mobile payment), a Designer Planner (a built-in calendar tool that consolidates training sessions, appointments, and delivery deadlines), and Designer Collaboration (a feature allowing Designers to form joint projects with shared workspaces and portfolio visibility).
 

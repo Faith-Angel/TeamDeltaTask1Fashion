@@ -3,19 +3,18 @@ import type { Config } from "tailwindcss";
 const config: Config = {
   darkMode: ["class"],
   content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./lib/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
-      // ── Afrocentric Palette ───────────────────────────────────────────
       colors: {
-        // Primary brand colours
+        // Afrocentric brand palette
         "kente-gold": {
           DEFAULT: "#FFC107",
-          50:  "#FFF8E1",
+          50: "#FFF8E1",
           100: "#FFECB3",
           200: "#FFE082",
           300: "#FFD54F",
@@ -28,7 +27,7 @@ const config: Config = {
         },
         "sahara-sunset": {
           DEFAULT: "#FF6F00",
-          50:  "#FFF3E0",
+          50: "#FFF3E0",
           100: "#FFE0B2",
           200: "#FFCC80",
           300: "#FFB74D",
@@ -41,7 +40,7 @@ const config: Config = {
         },
         "congo-royale": {
           DEFAULT: "#4A148C",
-          50:  "#F3E5F5",
+          50: "#F3E5F5",
           100: "#E1BEE7",
           200: "#CE93D8",
           300: "#BA68C8",
@@ -54,7 +53,7 @@ const config: Config = {
         },
         "bamileke-earth": {
           DEFAULT: "#5D4037",
-          50:  "#EFEBE9",
+          50: "#EFEBE9",
           100: "#D7CCC8",
           200: "#BCAAA4",
           300: "#A1887F",
@@ -67,7 +66,7 @@ const config: Config = {
         },
         "savanna-bloom": {
           DEFAULT: "#558B2F",
-          50:  "#F1F8E9",
+          50: "#F1F8E9",
           100: "#DCEDC8",
           200: "#C5E1A5",
           300: "#AED581",
@@ -78,56 +77,55 @@ const config: Config = {
           800: "#558B2F",
           900: "#33691E",
         },
-        // shadcn/ui semantic tokens (mapped to the palette)
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        // Frontend UI tokens (used by src/components)
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
-        },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
-        },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
-        },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: "#558B2F",
+          light: "#7CB342",
+          dark: "#33691E",
+          foreground: "#FFFFFF",
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "#F9A825",
+          light: "#FDD835",
+          foreground: "#1B1B1B",
         },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+        background: "#FAFAF5",
+        foreground: "#1B1B1B",
+        surface: "#FFFFFF",
+        textPrimary: "#1B1B1B",
+        textSecondary: "#5D4037",
+        border: "#E8F5E9",
+        error: "#C62828",
+        success: "#2E7D32",
+        warning: "#F57F17",
+        muted: "#F1F8E9",
+        destructive: {
+          DEFAULT: "#C62828",
+          foreground: "#FFFFFF",
+        },
+        secondary: {
+          DEFAULT: "#F1F8E9",
+          foreground: "#1B1B1B",
         },
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: "#FFFFFF",
+          foreground: "#1B1B1B",
         },
+        popover: {
+          DEFAULT: "#FFFFFF",
+          foreground: "#1B1B1B",
+        },
+        ring: "#558B2F",
+        input: "#E8F5E9",
       },
-
-      // ── Border Radius (shadcn/ui convention) ─────────────────────────
+      fontFamily: {
+        sans: ["var(--font-sans)", "Inter", "system-ui", "sans-serif"],
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
-
-      // ── Typography ────────────────────────────────────────────────────
-      fontFamily: {
-        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
-        mono: ["var(--font-mono)", "monospace"],
-      },
-
-      // ── 4-pt spacing grid extension ───────────────────────────────────
       spacing: {
         "4.5": "1.125rem",
         "13": "3.25rem",
@@ -135,8 +133,6 @@ const config: Config = {
         "18": "4.5rem",
         "22": "5.5rem",
       },
-
-      // ── Keyframes for Framer Motion fallback / Tailwind animations ────
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
