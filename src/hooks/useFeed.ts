@@ -1,7 +1,7 @@
 'use client';
 
 import { useInfiniteQuery, useQuery, useMutation } from '@tanstack/react-query';
-import { feedApi } from '@/services/apiClient';
+import { feedApi, mlApi } from '@/services/apiClient';
 import { QUERY_KEYS } from '@/lib/constants';
 import type { FeedItem, PaginatedResponse } from '@/types/models';
 
@@ -23,8 +23,8 @@ export function useFeedItem(id: string) {
 }
 
 export function useOutfitGenerator() {
-  return useMutation<{ concept: string; imageUrl: string; prompt: string }, Error, string>({
-    mutationFn: (prompt: string) => feedApi.generateOutfit(prompt).then((r) => r.data),
+  return useMutation<{ reply: string; conversation_id?: string }, Error, string>({
+    mutationFn: (prompt: string) => mlApi.styleChat({ message: prompt }).then((r) => r.data),
   });
 }
 

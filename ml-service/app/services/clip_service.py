@@ -11,6 +11,15 @@ Public state flags read by the /health endpoint:
   clip_loaded: bool
 """
 
+import os
+# ──────────────────────────────────────────────
+# FORCE HuggingFace cache to use GLORIA's folder
+# This MUST come BEFORE importing transformers/huggingface_hub
+# ──────────────────────────────────────────────
+os.environ["HF_HOME"] = "C:/Users/GLORIA/.cache/huggingface"
+os.environ["TRANSFORMERS_CACHE"] = "C:/Users/GLORIA/.cache/huggingface"
+os.environ["HUGGINGFACE_HUB_CACHE"] = "C:/Users/GLORIA/.cache/huggingface"
+
 import hashlib
 import io
 import logging
@@ -44,12 +53,12 @@ def load_model() -> None:
         from transformers import CLIPModel, CLIPProcessor  # type: ignore
 
         _processor = CLIPProcessor.from_pretrained(
-            settings.CLIP_MODEL_NAME,
-            cache_dir=settings.MODEL_CACHE_DIR,
+            "openai/clip-vit-base-patch32",
+            cache_dir="C:/Users/GLORIA/.cache/huggingface"
         )
         _model = CLIPModel.from_pretrained(
-            settings.CLIP_MODEL_NAME,
-            cache_dir=settings.MODEL_CACHE_DIR,
+            "openai/clip-vit-base-patch32",
+            cache_dir="C:/Users/GLORIA/.cache/huggingface"
         )
         _model.eval()  # inference mode — no gradient tracking needed
         clip_loaded = True

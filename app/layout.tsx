@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     "NdoloStitch",
   ],
   authors: [{ name: "NdoloStitch Team" }],
-  manifest: "/manifest.json",
+  manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

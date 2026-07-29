@@ -8,36 +8,29 @@
 import { z } from "zod";
 import { Role, MarketerSubRole } from "@prisma/client";
 
-// ── Phone number ───────────────────────────────────────────────────────────────
-// Must be E.164 format: +237 followed by 9 digits (Cameroon)
-// Also accepts other country codes for flexibility during development.
+// ── Email ──────────────────────────────────────────────────────────────────────
 
-export const phoneSchema = z
+export const emailSchema = z
   .string()
   .trim()
-  .regex(/^\+[1-9]\d{6,14}$/, {
-    message:
-      "Phone number must be in E.164 format (e.g. +237612345678)",
-  });
+  .min(1, { message: "Email is required" })
+  .email({ message: "Please enter a valid email address" })
+  .max(255, { message: "Email must be 255 characters or fewer" })
+  .toLowerCase();
 
-// ── Send OTP ───────────────────────────────────────────────────────────────────
+// ── Password ───────────────────────────────────────────────────────────────────
 
-export const sendOtpSchema = z.object({
-  phone: phoneSchema,
-});
+export const passwordSchema = z
+  .string()
+  .min(8, { message: "Password must be at least 8 characters" })
+  .max(128, { message: "Password must be 128 characters or fewer" });
 
-export type SendOtpInput = z.infer<typeof sendOtpSchema>;
+// ── Registration ───────────────────────────────────────────────────────────────
 
-// ── Verify OTP (first-time registration) ──────────────────────────────────────
-
-export const verifyOtpRegisterSchema = z
+export const registerSchema = z
   .object({
-    phone: phoneSchema,
-    token: z
-      .string()
-      .trim()
-      .length(6, { message: "OTP must be exactly 6 digits" })
-      .regex(/^\d+$/, { message: "OTP must contain digits only" }),
+    email: emailSchema,
+    password: passwordSchema,
     fullName: z
       .string()
       .trim()
@@ -75,20 +68,16 @@ export const verifyOtpRegisterSchema = z
     }
   });
 
-export type VerifyOtpRegisterInput = z.infer<typeof verifyOtpRegisterSchema>;
+export type RegisterInput = z.infer<typeof registerSchema>;
 
-// ── Verify OTP (returning user login) ─────────────────────────────────────────
+// ── Login ──────────────────────────────────────────────────────────────────────
 
-export const verifyOtpLoginSchema = z.object({
-  phone: phoneSchema,
-  token: z
-    .string()
-    .trim()
-    .length(6, { message: "OTP must be exactly 6 digits" })
-    .regex(/^\d+$/, { message: "OTP must contain digits only" }),
+export const loginSchema = z.object({
+  email: emailSchema,
+  password: passwordSchema,
 });
 
-export type VerifyOtpLoginInput = z.infer<typeof verifyOtpLoginSchema>;
+export type LoginInput = z.infer<typeof loginSchema>;
 
 // ── Refresh token ──────────────────────────────────────────────────────────────
 

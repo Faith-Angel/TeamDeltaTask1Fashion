@@ -42,8 +42,8 @@ export default function MarketerBookingsPage() {
   });
 
   const { mutate: respond, isPending: responding } = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: 'Confirmed' | 'Declined' }) =>
-      marketersApi.respondToBooking(id, status).then((r) => r.data),
+    mutationFn: ({ id, decision }: { id: string; decision: 'accept' | 'decline' }) =>
+      marketersApi.respondToBooking(id, decision).then((r) => r.data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['bookings', 'marketer'] }),
   });
 
@@ -168,7 +168,7 @@ export default function MarketerBookingsPage() {
                     size="sm"
                     className="flex-1 bg-success text-white text-xs"
                     disabled={responding}
-                    onClick={() => respond({ id: booking.id, status: 'Confirmed' })}
+                    onClick={() => respond({ id: booking.id, decision: 'accept' })}
                     aria-label={`Confirm booking from ${booking.designerName}`}
                   >
                     <CheckCircle className="w-3.5 h-3.5 mr-1" aria-hidden="true" />
@@ -179,7 +179,7 @@ export default function MarketerBookingsPage() {
                     variant="outline"
                     className="flex-1 text-xs text-error border-error/30 hover:bg-error/10"
                     disabled={responding}
-                    onClick={() => respond({ id: booking.id, status: 'Declined' })}
+                    onClick={() => respond({ id: booking.id, decision: 'decline' })}
                     aria-label={`Decline booking from ${booking.designerName}`}
                   >
                     <XCircle className="w-3.5 h-3.5 mr-1" aria-hidden="true" />

@@ -63,7 +63,8 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
     pathname.startsWith("/icons") ||
-    pathname.startsWith("/manifest.json") ||
+    pathname.startsWith("/manifest") ||
+    pathname.startsWith("/site.webmanifest") ||
     pathname.match(/\.(svg|png|jpg|jpeg|gif|webp|ico)$/)
   ) {
     return response;

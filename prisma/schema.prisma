@@ -13,7 +13,7 @@ model User {
   /// UUID from Supabase auth.users — used to link the two systems
   authId                           String                    @unique
   fullName                         String                    @db.VarChar(100)
-  phone                            String                    @unique @db.VarChar(20)
+  email                            String                    @unique @db.VarChar(255)
   location                         String                    @db.VarChar(100)
   role                             Role
   marketerSubRole                  MarketerSubRole?

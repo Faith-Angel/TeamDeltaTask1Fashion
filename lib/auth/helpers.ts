@@ -11,7 +11,6 @@
  *   - Building the public user object returned to the client
  */
 
-import { type NextRequest } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
 import { Role, MarketerSubRole, type User } from "@prisma/client";
@@ -27,7 +26,7 @@ export interface PublicUser {
   id: string;
   authId: string;
   fullName: string;
-  phone: string;
+  email: string;
   location: string;
   role: Role;
   marketerSubRole: MarketerSubRole | null;
@@ -60,7 +59,7 @@ export async function getAuthenticatedUser(): Promise<PublicUser | null> {
         id: true,
         authId: true,
         fullName: true,
-        phone: true,
+        email: true,
         location: true,
         role: true,
         marketerSubRole: true,
@@ -102,7 +101,7 @@ export async function requireRole(allowedRoles: Role[]): Promise<PublicUser> {
 export interface CreateUserParams {
   authId: string;
   fullName: string;
-  phone: string;
+  email: string;
   location: string;
   role: Role;
   marketerSubRole?: MarketerSubRole;
@@ -115,7 +114,7 @@ export interface CreateUserParams {
 export async function createUserWithProfile(
   params: CreateUserParams
 ): Promise<User> {
-  const { authId, fullName, phone, location, role, marketerSubRole } = params;
+  const { authId, fullName, email, location, role, marketerSubRole } = params;
 
   return db.$transaction(async (tx) => {
     // Create base User record
@@ -123,7 +122,7 @@ export async function createUserWithProfile(
       data: {
         authId,
         fullName,
-        phone,
+        email,
         location,
         role,
         marketerSubRole: marketerSubRole ?? null,
@@ -236,7 +235,7 @@ export function toPublicUser(user: User): PublicUser {
     id: user.id,
     authId: user.authId,
     fullName: user.fullName,
-    phone: user.phone,
+    email: user.email,
     location: user.location,
     role: user.role,
     marketerSubRole: user.marketerSubRole,

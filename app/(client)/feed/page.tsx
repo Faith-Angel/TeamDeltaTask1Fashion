@@ -2,9 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { Sparkles, X, Send, MapPin } from 'lucide-react';
+import { Sparkles, X, Send } from 'lucide-react';
 import { useFeed, useOutfitGenerator } from '@/hooks/useFeed';
-import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -107,20 +106,9 @@ function AIOutfitModal({ onClose }: { onClose: () => void }) {
 
           {data && !isPending && (
             <div className="rounded-xl border border-border overflow-hidden" role="region" aria-label="Generated outfit concept">
-              {data.imageUrl && (
-                <div className="relative aspect-[4/5] w-full bg-muted">
-                  <Image
-                    src={data.imageUrl}
-                    alt="AI generated outfit concept"
-                    fill
-                    className="object-cover"
-                    sizes="400px"
-                  />
-                </div>
-              )}
               <div className="p-4 bg-primary/5">
-                <p className="text-sm text-textPrimary font-medium">Concept</p>
-                <p className="text-sm text-textSecondary mt-1">{data.concept}</p>
+                <p className="text-sm text-textPrimary font-medium">Style Suggestion</p>
+                <p className="text-sm text-textSecondary mt-1 whitespace-pre-wrap">{data.reply}</p>
                 <Button
                   variant="outline"
                   className="mt-3 w-full text-sm"
@@ -142,7 +130,6 @@ export default function FeedPage() {
   const [showAI, setShowAI] = useState(false);
   const loaderRef = useRef<HTMLDivElement>(null);
 
-  // Infinite scroll via IntersectionObserver
   useEffect(() => {
     const el = loaderRef.current;
     if (!el) return;
@@ -162,7 +149,6 @@ export default function FeedPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-textPrimary">Inspiration Feed</h1>
@@ -185,7 +171,6 @@ export default function FeedPage() {
         </Button>
       </div>
 
-      {/* Loading skeleton */}
       {isLoading && (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4" aria-busy="true" aria-label="Loading feed">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -194,7 +179,6 @@ export default function FeedPage() {
         </div>
       )}
 
-      {/* Feed grid */}
       {!isLoading && (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {allItems.map((item) => (
@@ -203,7 +187,6 @@ export default function FeedPage() {
         </div>
       )}
 
-      {/* Infinite scroll loader */}
       <div ref={loaderRef} className="flex justify-center py-6" aria-live="polite">
         {isFetchingNextPage && (
           <div className="flex items-center gap-2 text-textSecondary text-sm" role="status">

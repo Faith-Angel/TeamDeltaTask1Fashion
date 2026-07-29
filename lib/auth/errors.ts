@@ -21,10 +21,8 @@ export interface AuthErrorResponse {
 
 export type AuthErrorCode =
   | "VALIDATION_ERROR"
-  | "PHONE_ALREADY_IN_USE"
-  | "INVALID_OTP"
-  | "OTP_EXPIRED"
-  | "OTP_SEND_FAILED"
+  | "EMAIL_ALREADY_IN_USE"
+  | "INVALID_CREDENTIALS"
   | "USER_NOT_FOUND"
   | "ACCOUNT_LOCKED"
   | "UNAUTHORIZED"
@@ -47,41 +45,31 @@ export function validationError(
   );
 }
 
-export function phoneInUseError(): NextResponse<AuthErrorResponse> {
+export function emailInUseError(): NextResponse<AuthErrorResponse> {
   return NextResponse.json(
     {
-      error: "This phone number is already registered. Please log in instead.",
-      code: "PHONE_ALREADY_IN_USE",
+      error: "This email address is already registered. Please log in instead.",
+      code: "EMAIL_ALREADY_IN_USE",
     },
     { status: 409 }
   );
 }
 
-export function invalidOtpError(): NextResponse<AuthErrorResponse> {
+export function invalidCredentialsError(): NextResponse<AuthErrorResponse> {
   return NextResponse.json(
     {
-      error: "Invalid or expired OTP. Please request a new code.",
-      code: "INVALID_OTP",
+      error: "Invalid email or password.",
+      code: "INVALID_CREDENTIALS",
     },
     { status: 401 }
-  );
-}
-
-export function otpSendFailedError(detail?: string): NextResponse<AuthErrorResponse> {
-  return NextResponse.json(
-    {
-      error: detail ?? "Failed to send OTP. Please try again.",
-      code: "OTP_SEND_FAILED",
-    },
-    { status: 502 }
   );
 }
 
 export function userNotFoundError(): NextResponse<AuthErrorResponse> {
   return NextResponse.json(
     {
-      // Generic message — do not reveal whether the phone exists
-      error: "Invalid phone number or OTP.",
+      // Generic message — do not reveal whether the email exists
+      error: "Invalid email or password.",
       code: "USER_NOT_FOUND",
     },
     { status: 401 }

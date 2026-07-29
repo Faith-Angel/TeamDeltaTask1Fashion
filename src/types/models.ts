@@ -6,7 +6,7 @@ export type MarketerSubRole = 'Model' | 'Content_Creator';
 export interface User {
   id: string;
   fullName: string;
-  phone: string;
+  email: string;
   location: string;
   role: UserRole;
   marketerSubRole?: MarketerSubRole;

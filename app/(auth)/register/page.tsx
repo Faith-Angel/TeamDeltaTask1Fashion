@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { Eye, EyeOff } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { NdoloLogo } from '@/components/ui/NdoloLogo';
 import { useAuth } from '@/hooks/useAuth';
 import { registrationSchema, type RegistrationInput } from '@/validation/schemas';
@@ -15,7 +15,7 @@ import axios from 'axios';
 
 export default function RegisterPage() {
   const { register: registerUser, isLoading } = useAuth();
-  const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
   const [serverError, setServerError] = useState('');
 
   const {
@@ -31,14 +31,25 @@ export default function RegisterPage() {
 
   const onSubmit = async (data: RegistrationInput) => {
     setServerError('');
+
     try {
-      await registerUser(data as Record<string, unknown>);
+      const { confirmPassword, ...registrationData } = data;
+      const user = await registerUser(registrationData as unknown as Record<string, unknown>);
+
+      const roleRoutes: Record<string, string> = {
+        Client: '/dashboard',
+        Designer: '/designer/dashboard',
+        Vendor: '/vendor/dashboard',
+        Marketer: '/marketer/dashboard',
+      };
+
+      router.replace(roleRoutes[user.role] || '/dashboard');
     } catch (err) {
       if (axios.isAxiosError(err)) {
         if (err.response?.status === 409) {
-          setServerError('A user with this phone number already exists');
+          setServerError('A user with this email address already exists');
         } else {
-          setServerError(err.response?.data?.message || 'Registration failed. Please try again.');
+          setServerError(err.response?.data?.error || 'Registration failed. Please try again.');
         }
       } else {
         setServerError('Something went wrong. Please try again.');
@@ -81,24 +92,68 @@ export default function RegisterPage() {
               )}
             </div>
 
-            {/* Phone */}
+            {/* Email */}
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-textPrimary mb-1">
-                Phone Number
+              <label htmlFor="email" className="block text-sm font-medium text-textPrimary mb-1">
+                Email Address
               </label>
               <Input
-                id="phone"
-                type="tel"
-                placeholder="+237XXXXXXXXX"
-                autoComplete="tel"
-                aria-label="Phone number in format +237XXXXXXXXX"
-                aria-invalid={!!errors.phone}
-                aria-describedby={errors.phone ? 'phone-error' : undefined}
-                {...register('phone')}
+                id="email"
+                type="email"
+                placeholder="your@email.com"
+                autoComplete="email"
+                aria-label="Email address"
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? 'email-error' : undefined}
+                {...register('email')}
               />
-              {errors.phone && (
-                <p id="phone-error" className="text-error text-xs mt-1" role="alert">
-                  {errors.phone.message}
+              {errors.email && (
+                <p id="email-error" className="text-error text-xs mt-1" role="alert">
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
+
+            {/* Password */}
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-textPrimary mb-1">
+                Password
+              </label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Min 8 characters"
+                autoComplete="new-password"
+                aria-label="Password"
+                aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? 'password-error' : undefined}
+                {...register('password')}
+              />
+              {errors.password && (
+                <p id="password-error" className="text-error text-xs mt-1" role="alert">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
+
+            {/* Confirm Password */}
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-textPrimary mb-1">
+                Confirm Password
+              </label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="Repeat your password"
+                autoComplete="new-password"
+                aria-label="Confirm password"
+                aria-invalid={!!errors.confirmPassword}
+                aria-describedby={errors.confirmPassword ? 'confirmPassword-error' : undefined}
+                {...register('confirmPassword')}
+              />
+              {errors.confirmPassword && (
+                <p id="confirmPassword-error" className="text-error text-xs mt-1" role="alert">
+                  {errors.confirmPassword.message}
                 </p>
               )}
             </div>
@@ -117,8 +172,8 @@ export default function RegisterPage() {
                 {...register('location')}
               >
                 <option value="">Select your location</option>
-                {CAMEROON_LOCATIONS.map((loc) => (
-                  <option key={loc} value={loc}>
+                {CAMEROON_LOCATIONS.map((loc, index) => (
+                  <option key={`${loc}-${index}`} value={loc}>
                     {loc}
                   </option>
                 ))}
@@ -190,59 +245,6 @@ export default function RegisterPage() {
               </div>
             )}
 
-            {/* Password */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-textPrimary mb-1">
-                Password
-              </label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Min 8 characters"
-                  autoComplete="new-password"
-                  aria-label="Password, minimum 8 characters"
-                  aria-invalid={!!errors.password}
-                  className="pr-10"
-                  {...register('password')}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-textSecondary hover:text-textPrimary min-h-[auto] min-w-[auto]"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-              {errors.password && (
-                <p className="text-error text-xs mt-1" role="alert">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
-
-            {/* Confirm Password */}
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-textPrimary mb-1">
-                Confirm Password
-              </label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="Repeat your password"
-                autoComplete="new-password"
-                aria-label="Confirm password"
-                aria-invalid={!!errors.confirmPassword}
-                {...register('confirmPassword')}
-              />
-              {errors.confirmPassword && (
-                <p className="text-error text-xs mt-1" role="alert">
-                  {errors.confirmPassword.message}
-                </p>
-              )}
-            </div>
-
             {/* Server error */}
             {serverError && (
               <div role="alert" className="text-sm p-3 rounded-lg bg-error/10 text-error border border-error/20">
@@ -271,3 +273,4 @@ export default function RegisterPage() {
     </div>
   );
 }
+

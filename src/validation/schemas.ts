@@ -1,18 +1,26 @@
 import { z } from 'zod';
 
-// Phone validation: E.164 format +237XXXXXXXXX
-const cameroonPhoneRegex = /^\+237[0-9]{9}$/;
-
-export const phoneSchema = z
+const emailSchema = z
   .string()
-  .regex(cameroonPhoneRegex, 'Phone must be in format +237XXXXXXXXX');
+  .trim()
+  .min(1, 'Email is required')
+  .email('Please enter a valid email address')
+  .max(255, 'Email must be 255 characters or less')
+  .toLowerCase();
+
+const passwordSchema = z
+  .string()
+  .min(8, 'Password must be at least 8 characters')
+  .max(128, 'Password must be 128 characters or less');
 
 export const registrationSchema = z.object({
   fullName: z
     .string()
     .min(1, 'Full name is required')
     .max(100, 'Full name must be 100 characters or less'),
-  phone: phoneSchema,
+  email: emailSchema,
+  password: passwordSchema,
+  confirmPassword: z.string().min(1, 'Please confirm your password'),
   location: z
     .string()
     .min(1, 'Location is required')
@@ -21,33 +29,23 @@ export const registrationSchema = z.object({
     errorMap: () => ({ message: 'Please select a valid role' }),
   }),
   marketerSubRole: z.enum(['Model', 'Content_Creator']).optional(),
-  password: z
-    .string()
-    .min(8, 'Password must be at least 8 characters'),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ['confirmPassword'],
 }).refine(
   (data) => data.role !== 'Marketer' || !!data.marketerSubRole,
   {
     message: 'Please select a sub-role for Marketer',
     path: ['marketerSubRole'],
   }
+).refine(
+  (data) => data.password === data.confirmPassword,
+  {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  }
 );
 
 export const loginSchema = z.object({
-  phone: phoneSchema,
-  password: z.string().min(1, 'Password or PIN is required'),
-});
-
-export const pinLoginSchema = z.object({
-  phone: phoneSchema,
-  pin: z
-    .string()
-    .min(4, 'PIN must be 4-6 digits')
-    .max(6, 'PIN must be 4-6 digits')
-    .regex(/^\d+$/, 'PIN must contain only digits'),
+  email: emailSchema,
+  password: passwordSchema,
 });
 
 export const listingSchema = z.object({
